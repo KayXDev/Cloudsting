@@ -1,0 +1,40 @@
+<svg width="180" height="160" viewBox="0 0 180 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g1" x1="18" y1="20" x2="92" y2="124" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#28E784"/>
+      <stop offset="1" stop-color="#129A54"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="92" y1="20" x2="166" y2="124" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1C2630"/>
+      <stop offset="1" stop-color="#0C141A"/>
+    </linearGradient>
+    <linearGradient id="rack" x1="115" y1="44" x2="115" y2="108" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1E2A36"/>
+      <stop offset="1" stop-color="#101820"/>
+    </linearGradient>
+  </defs>
+
+  <path d="M22 30H86L104 50V130H40L22 112V30Z" fill="url(#g1)"/>
+  <path d="M86 30H158L140 50H104L86 30Z" fill="#0B1217"/>
+  <path d="M104 50H140V130H104V50Z" fill="url(#g2)"/>
+
+  <path d="M36 52L58 40L80 52L58 64L36 52Z" fill="#64F3AA"/>
+  <path d="M36 52V76L58 88V64L36 52Z" fill="#8A5A38"/>
+  <path d="M80 52V76L58 88V64L80 52Z" fill="#73492D"/>
+  <rect x="47" y="68" width="4" height="4" fill="#5A3924"/>
+  <rect x="53" y="72" width="4" height="4" fill="#52331F"/>
+  <rect x="61" y="70" width="4" height="4" fill="#5A3A24"/>
+
+  <rect x="111" y="58" width="22" height="46" rx="4" fill="url(#rack)" stroke="#38DB88" stroke-width="2"/>
+  <rect x="115" y="65" width="14" height="3" rx="1.5" fill="#91A4B8"/>
+  <rect x="115" y="72" width="14" height="3" rx="1.5" fill="#91A4B8"/>
+  <rect x="115" y="79" width="14" height="3" rx="1.5" fill="#91A4B8"/>
+  <circle cx="126" cy="90" r="1.8" fill="#29D57A"/>
+
+  <path d="M54 104H128" stroke="#52EEA0" stroke-width="4" stroke-linecap="round"/>
+  <path d="M91 104V122" stroke="#52EEA0" stroke-width="4" stroke-linecap="round"/>
+  <path d="M74 122H108" stroke="#52EEA0" stroke-width="4" stroke-linecap="round"/>
+
+  <path d="M144 58C149 62 149 70 144 74" stroke="#6CF3B2" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M150 54C157 60 157 72 150 78" stroke="#6CF3B2" stroke-width="2.2" stroke-linecap="round"/>
+</svg>

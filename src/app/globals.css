@@ -1,0 +1,217 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #060606;
+  --text: #f3f5f7;
+  --muted: rgba(228, 232, 236, 0.72);
+
+  --surface0: rgba(8, 8, 8, 0.9);
+  --surface1: rgba(255, 255, 255, 0.04);
+  --surface2: rgba(255, 255, 255, 0.07);
+  --surface3: rgba(255, 255, 255, 0.12);
+
+  --border: rgba(255, 255, 255, 0.14);
+  --accent: #59ffa8;
+  --accent2: #8af4c4;
+  --primary: #59ffa8;
+  --danger: #ff4d6d;
+}
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--text);
+  --font-sans: var(--font-body);
+  --font-mono: ui-monospace;
+}
+
+body {
+  background:
+    linear-gradient(180deg, rgba(6, 6, 6, 0.98), rgba(8, 8, 8, 0.96)),
+    radial-gradient(1100px circle at 15% -10%, rgba(89, 255, 168, 0.12), transparent 52%),
+    radial-gradient(980px circle at 85% 0%, rgba(255, 255, 255, 0.06), transparent 50%),
+    var(--bg);
+  color: var(--text);
+  font-family: "Prueba 2002", var(--font-body), "Segoe UI", sans-serif;
+  letter-spacing: 0.01em;
+}
+
+.kx-animated-bg {
+  background:
+    radial-gradient(900px circle at 18% 18%, rgba(89, 255, 168, 0.14), transparent 55%),
+    radial-gradient(900px circle at 80% 8%, rgba(255, 255, 255, 0.08), transparent 55%),
+    radial-gradient(800px circle at 50% 95%, rgba(89, 255, 168, 0.1), transparent 60%);
+}
+
+.kx-noise {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.06;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.05),
+      rgba(255, 255, 255, 0.05) 1px,
+      transparent 1px,
+      transparent 2px
+    );
+  mix-blend-mode: overlay;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Prueba 2002", var(--font-heading), var(--font-body), sans-serif;
+  letter-spacing: 0.01em;
+}
+
+@keyframes kxFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes kxPulseGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 rgba(89, 255, 168, 0);
+  }
+  50% {
+    box-shadow: 0 0 22px rgba(89, 255, 168, 0.24);
+  }
+}
+
+@keyframes kxOnlineBlink {
+  0%,
+  100% {
+    opacity: 0.72;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+}
+
+.kx-fade-up {
+  animation: kxFadeUp 560ms ease-out both;
+}
+
+.kx-fade-up-delay-1 {
+  animation: kxFadeUp 620ms ease-out both;
+  animation-delay: 80ms;
+}
+
+.kx-fade-up-delay-2 {
+  animation: kxFadeUp 680ms ease-out both;
+  animation-delay: 150ms;
+}
+
+.kx-glow {
+  animation: kxPulseGlow 2.8s ease-in-out infinite;
+}
+
+.kx-online-dot {
+  animation: kxOnlineBlink 1.45s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kx-online-dot {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.home-hero-bg {
+  background-color: #050708;
+  background-image:
+    linear-gradient(180deg, rgba(7, 11, 10, 0.50) 0%, rgba(5, 8, 7, 0.76) 56%, rgba(4, 6, 6, 0.96) 100%),
+    radial-gradient(700px circle at 50% 8%, rgba(54, 245, 142, 0.16), transparent 56%),
+    linear-gradient(rgba(26, 215, 111, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(26, 215, 111, 0.06) 1px, transparent 1px);
+  background-size: auto, auto, 54px 54px, 54px 54px;
+  background-position: center, center, center, center;
+}
+
+.home-hero-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 14%, rgba(190, 255, 222, 0.14), transparent 44%),
+    linear-gradient(90deg, rgba(3, 5, 5, 0.50) 0%, transparent 24%, transparent 76%, rgba(3, 5, 5, 0.50) 100%);
+}
+
+@keyframes heroStarsFloatA {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.45;
+  }
+  50% {
+    transform: translate3d(-12px, 8px, 0);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.45;
+  }
+}
+
+@keyframes heroStarsFloatB {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.35;
+  }
+  50% {
+    transform: translate3d(10px, -10px, 0);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.35;
+  }
+}
+
+.home-hero-stars,
+.home-hero-stars-2 {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.home-hero-stars {
+  background-image:
+    radial-gradient(circle at 12% 24%, rgba(26, 215, 111, 0.9) 0 1px, transparent 1.7px),
+    radial-gradient(circle at 20% 68%, rgba(26, 215, 111, 0.75) 0 1.2px, transparent 1.8px),
+    radial-gradient(circle at 33% 40%, rgba(26, 215, 111, 0.8) 0 1.3px, transparent 1.8px),
+    radial-gradient(circle at 47% 18%, rgba(26, 215, 111, 0.9) 0 1.2px, transparent 1.8px),
+    radial-gradient(circle at 60% 74%, rgba(26, 215, 111, 0.7) 0 1.1px, transparent 1.7px),
+    radial-gradient(circle at 74% 33%, rgba(26, 215, 111, 0.9) 0 1.3px, transparent 1.8px),
+    radial-gradient(circle at 88% 52%, rgba(26, 215, 111, 0.75) 0 1.1px, transparent 1.7px),
+    radial-gradient(circle at 93% 22%, rgba(26, 215, 111, 0.85) 0 1.2px, transparent 1.8px);
+  animation: heroStarsFloatA 7.2s ease-in-out infinite;
+}
+
+.home-hero-stars-2 {
+  background-image:
+    radial-gradient(circle at 8% 58%, rgba(96, 255, 176, 0.8) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 16% 82%, rgba(96, 255, 176, 0.7) 0 1.1px, transparent 1.7px),
+    radial-gradient(circle at 28% 12%, rgba(96, 255, 176, 0.8) 0 1px, transparent 1.7px),
+    radial-gradient(circle at 42% 62%, rgba(96, 255, 176, 0.75) 0 1.2px, transparent 1.7px),
+    radial-gradient(circle at 55% 28%, rgba(96, 255, 176, 0.8) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 68% 86%, rgba(96, 255, 176, 0.72) 0 1px, transparent 1.7px),
+    radial-gradient(circle at 82% 14%, rgba(96, 255, 176, 0.8) 0 1.2px, transparent 1.7px),
+    radial-gradient(circle at 94% 70%, rgba(96, 255, 176, 0.74) 0 1px, transparent 1.7px);
+  animation: heroStarsFloatB 9s ease-in-out infinite;
+}

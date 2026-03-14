@@ -1,0 +1,24 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="ring" x1="20" y1="16" x2="102" y2="104" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2AF598"/>
+      <stop offset="1" stop-color="#1FBCFF"/>
+    </linearGradient>
+    <linearGradient id="core" x1="36" y1="32" x2="86" y2="88" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F1A2C"/>
+      <stop offset="1" stop-color="#0A111F"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="42" y1="42" x2="78" y2="78" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#51FFAE"/>
+      <stop offset="1" stop-color="#22D37A"/>
+    </linearGradient>
+  </defs>
+
+  <circle cx="60" cy="60" r="50" fill="#060B16"/>
+  <circle cx="60" cy="60" r="45" stroke="url(#ring)" stroke-width="6"/>
+  <circle cx="60" cy="60" r="32" fill="url(#core)"/>
+
+  <path d="M60 38L78 48V72L60 82L42 72V48L60 38Z" fill="url(#mark)"/>
+  <path d="M60 46L71 52V66L60 72L49 66V52L60 46Z" fill="#0E1828"/>
+  <path d="M60 22L64 30L72 31L66 37L67 45L60 41L53 45L54 37L48 31L56 30L60 22Z" fill="#DDF8FF"/>
+</svg>

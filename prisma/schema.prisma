@@ -1,0 +1,193 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum OrderProvider {
+  STRIPE
+  PAYPAL
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum ServerStatus {
+  PROVISIONING
+  ACTIVE
+  SUSPENDED
+  ERROR
+  DELETED
+}
+
+enum SupportTicketStatus {
+  OPEN
+  STAFF_REPLIED
+  CUSTOMER_REPLIED
+  CLOSED
+}
+
+model User {
+  id              String         @id @default(auto()) @map("_id") @db.ObjectId
+  email           String         @unique
+  passwordHash    String
+  name            String?
+  role            UserRole       @default(USER)
+  pterodactylUserId Int?
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  orders          Order[]
+  servers         Server[]
+  refreshTokens   RefreshToken[]
+  supportTickets  SupportTicket[]
+  supportMessages SupportTicketMessage[] @relation("SupportTicketMessageAuthor")
+
+  @@index([role])
+}
+
+model RefreshToken {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  tokenHash String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  revokedAt DateTime?
+
+  @@index([userId])
+}
+
+model Plan {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  slug              String   @unique
+  name              String
+  ramMb             Int
+  cpuPercent        Int
+  diskMb            Int
+  databasesLimit    Int      @default(0)
+  backupsLimit      Int      @default(0)
+  allocationsLimit  Int      @default(1)
+  priceMonthlyCents Int
+  features          String[]
+  active            Boolean  @default(true)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  servers           Server[]
+  orders            Order[]
+}
+
+model Order {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String        @db.ObjectId
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  planId      String        @db.ObjectId
+  plan        Plan?         @relation(fields: [planId], references: [id])
+
+  provider    OrderProvider
+  providerRef String        @unique
+  status      OrderStatus   @default(PENDING)
+  amountCents Int
+
+  createdAt   DateTime      @default(now())
+  paidAt      DateTime?
+  metadata    Json?
+
+  server      Server?
+
+  @@index([userId])
+  @@index([planId])
+  @@index([status])
+}
+
+model Server {
+  id                   String        @id @default(auto()) @map("_id") @db.ObjectId
+  userId               String        @db.ObjectId
+  user                 User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  planId               String        @db.ObjectId
+  plan                 Plan          @relation(fields: [planId], references: [id])
+
+  orderId              String?       @unique @db.ObjectId
+  order                Order?        @relation(fields: [orderId], references: [id])
+
+  name                 String
+  status               ServerStatus  @default(PROVISIONING)
+
+  pterodactylServerId  Int?
+  pterodactylIdentifier String?
+  nodeId               Int?
+  allocationId         Int?
+
+  memoryMb             Int
+  cpuPercent           Int
+  diskMb               Int
+
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([planId])
+  @@index([status])
+}
+
+model Node {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  pterodactylNodeId Int     @unique
+  name            String
+
+  totalMemoryMb   Int
+  usedMemoryMb    Int
+  totalDiskMb     Int
+  usedDiskMb      Int
+
+  maintenanceMode Boolean  @default(false)
+  updatedAt       DateTime @updatedAt
+}
+
+model SupportTicket {
+  id            String              @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String              @db.ObjectId
+  user          User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject       String
+  status        SupportTicketStatus @default(OPEN)
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  closedAt      DateTime?
+  lastReplyAt   DateTime            @default(now())
+  messages      SupportTicketMessage[]
+
+  @@index([userId, createdAt])
+  @@index([status, updatedAt])
+}
+
+model SupportTicketMessage {
+  id         String        @id @default(auto()) @map("_id") @db.ObjectId
+  ticketId   String        @db.ObjectId
+  ticket     SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  authorId   String        @db.ObjectId
+  author     User          @relation("SupportTicketMessageAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  authorRole UserRole
+  body       String
+  createdAt  DateTime      @default(now())
+
+  @@index([ticketId, createdAt])
+  @@index([authorId])
+}

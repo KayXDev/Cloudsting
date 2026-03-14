@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 512 512" role="img" aria-label="KayX Hosting logo">
+  <defs>
+    <linearGradient id="crownY" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#FFE36A"/>
+      <stop offset="1" stop-color="#FFBE00"/>
+    </linearGradient>
+    <linearGradient id="crownO" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#FFA63A"/>
+      <stop offset="1" stop-color="#FF7A00"/>
+    </linearGradient>
+    <linearGradient id="unitG" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#8C8C8C"/>
+      <stop offset="1" stop-color="#707070"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Crown (closer proportions to the capture) -->
+  <g stroke="#1B1B1B" stroke-width="28" stroke-linejoin="round" stroke-linecap="round">
+    <path
+      d="M148 190 L126 78 L188 132 L256 58 L324 132 L386 78 L364 190 Z"
+      fill="url(#crownY)"
+    />
+    <rect x="134" y="190" width="244" height="56" rx="18" fill="url(#crownO)" />
+  </g>
+
+  <!-- Server stack (fits fully in viewBox; no clipping when scaled down) -->
+  <g>
+    <g stroke="#1B1B1B" stroke-width="28" stroke-linejoin="round" stroke-linecap="round">
+      <!-- Unit 1 -->
+      <rect x="78" y="232" width="356" height="96" rx="32" fill="url(#unitG)" />
+      <rect x="126" y="256" width="200" height="56" rx="18" fill="#2E2E2E" stroke="none" />
+      <rect x="156" y="274" width="24" height="24" fill="#2EA800" stroke="none" />
+      <rect x="210" y="274" width="24" height="24" fill="#2EA800" stroke="none" />
+      <rect x="264" y="274" width="24" height="24" fill="#2EA800" stroke="none" />
+      <!-- right symbols -->
+      <rect x="336" y="262" width="26" height="26" fill="#1B1B1B" stroke="none" />
+      <rect x="372" y="262" width="26" height="26" fill="#1B1B1B" stroke="none" />
+      <rect x="334" y="298" width="74" height="12" rx="6" fill="#1B1B1B" stroke="none" />
+
+      <!-- Unit 2 -->
+      <rect x="78" y="328" width="356" height="96" rx="32" fill="url(#unitG)" />
+      <rect x="126" y="352" width="200" height="56" rx="18" fill="#2E2E2E" stroke="none" />
+      <rect x="156" y="370" width="24" height="24" fill="#2EA800" stroke="none" />
+      <rect x="210" y="370" width="24" height="24" fill="#2EA800" stroke="none" />
+      <rect x="264" y="370" width="24" height="24" fill="#2EA800" stroke="none" />
+      <rect x="336" y="358" width="26" height="26" fill="#1B1B1B" stroke="none" />
+      <rect x="372" y="358" width="26" height="26" fill="#1B1B1B" stroke="none" />
+      <rect x="334" y="394" width="74" height="12" rx="6" fill="#1B1B1B" stroke="none" />
+
+      <!-- Unit 3 (one amber light like the capture) -->
+      <rect x="78" y="424" width="356" height="96" rx="32" fill="url(#unitG)" />
+      <rect x="126" y="448" width="200" height="56" rx="18" fill="#2E2E2E" stroke="none" />
+      <rect x="156" y="466" width="24" height="24" fill="#2EA800" stroke="none" />
+      <rect x="210" y="466" width="24" height="24" fill="#2EA800" stroke="none" />
+      <rect x="264" y="466" width="24" height="24" fill="#FF8A00" stroke="none" />
+      <rect x="336" y="454" width="26" height="26" fill="#1B1B1B" stroke="none" />
+      <rect x="372" y="454" width="26" height="26" fill="#1B1B1B" stroke="none" />
+      <rect x="334" y="490" width="74" height="12" rx="6" fill="#1B1B1B" stroke="none" />
+    </g>
+  </g>
+</svg>
