@@ -21,6 +21,11 @@ const bodyFont = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "Cloudsting",
   description: "Professional Minecraft server hosting platform.",
+  icons: {
+    icon: "/kx-minecraft-mark.svg",
+    shortcut: "/kx-minecraft-mark.svg",
+    apple: "/kx-minecraft-mark.svg",
+  },
 };
 
 export default function RootLayout({
