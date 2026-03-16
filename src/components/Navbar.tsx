@@ -12,6 +12,8 @@ import { t, type LangCode, LANG_LABELS } from "@/lib/i18n";
 export function Navbar() {
   const pathname = usePathname();
   const { lang, setLang } = useLanguage();
+  const headerRef = useRef<HTMLElement | null>(null);
+  const languageRef = useRef<HTMLDivElement | null>(null);
 
   const links = [
     { href: "/", label: t(lang, "nav.home") },
@@ -29,12 +31,11 @@ export function Navbar() {
   const [userServers, setUserServers] = useState<Array<{ id: string; name: string; status: string }>>([]);
   const [communityOpen, setCommunityOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [closeTimer, setCloseTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
+  const [mobileCommunityOpen, setMobileCommunityOpen] = useState(false);
   const [languageOpen, setLanguageOpen] = useState(false);
   const [walletOpen, setWalletOpen] = useState(false);
   const [serversOpen, setServersOpen] = useState(false);
   const [languageQuery, setLanguageQuery] = useState("");
-  const languageRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -79,8 +80,9 @@ export function Navbar() {
 
   useEffect(() => {
     function onPointerDown(e: MouseEvent) {
-      if (!languageRef.current) return;
-      if (!languageRef.current.contains(e.target as Node)) {
+      if (!headerRef.current) return;
+      if (!headerRef.current.contains(e.target as Node)) {
+        setCommunityOpen(false);
         setLanguageOpen(false);
         setWalletOpen(false);
         setServersOpen(false);
@@ -96,6 +98,8 @@ export function Navbar() {
     setWalletOpen(false);
     setServersOpen(false);
     setCommunityOpen(false);
+    setMobileOpen(false);
+    setMobileCommunityOpen(false);
   }, [pathname]);
 
   const navItemClass =
@@ -124,32 +128,17 @@ export function Navbar() {
     return l.native.toLowerCase().includes(q) || l.local.toLowerCase().includes(q);
   });
 
-  function openCommunity() {
-    if (closeTimer) {
-      clearTimeout(closeTimer);
-      setCloseTimer(null);
-    }
-    setCommunityOpen(true);
-  }
-
-  function closeCommunityWithDelay() {
-    const timer = setTimeout(() => {
-      setCommunityOpen(false);
-    }, 140);
-    setCloseTimer(timer);
-  }
-
   return (
-    <header className="sticky top-0 z-50 border-b border-[#1e1e1e] bg-[#0a0a0a]/95 backdrop-blur-xl">
-      <Container className="flex h-16 max-w-none items-center justify-between px-16 sm:px-20">
-        <div className="flex items-center gap-6">
-          <Link href="/" className="inline-flex h-12 items-center justify-center gap-2 self-center">
+    <header ref={headerRef} className="sticky top-0 z-50 border-b border-[#1e1e1e] bg-[#0a0a0a]/95 backdrop-blur-xl">
+      <Container className="flex min-h-16 max-w-none items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:h-16 lg:px-10 lg:py-0">
+        <div className="flex min-w-0 items-center gap-3 sm:gap-5 lg:gap-6">
+          <Link href="/" className="inline-flex h-12 shrink-0 items-center justify-center gap-2 self-center">
             <Image
               src="/kx-minecraft-mark.svg"
               alt="Cloudsting"
               width={62}
               height={54}
-              className="relative -top-1.5 block h-12 w-auto max-w-none"
+              className="relative -top-1 block h-11 w-auto max-w-none sm:h-12"
               priority
             />
           </Link>
@@ -169,14 +158,15 @@ export function Navbar() {
               </Link>
             ))}
 
-            <div
-              className="relative"
-              onMouseEnter={openCommunity}
-              onMouseLeave={closeCommunityWithDelay}
-            >
+            <div className="relative">
               <button
                 type="button"
-                onClick={() => setCommunityOpen((v) => !v)}
+                onClick={() => {
+                  setCommunityOpen((v) => !v);
+                  setLanguageOpen(false);
+                  setWalletOpen(false);
+                  setServersOpen(false);
+                }}
                 className={`${navItemClass} gap-2 ${
                   pathname.startsWith("/community")
                     ? "bg-[#1a1a1a] text-[#1AD76F]"
@@ -219,7 +209,12 @@ export function Navbar() {
             <div className="relative">
               <button
                 type="button"
-                onClick={() => setLanguageOpen((v) => !v)}
+                onClick={() => {
+                  setLanguageOpen((v) => !v);
+                  setCommunityOpen(false);
+                  setWalletOpen(false);
+                  setServersOpen(false);
+                }}
                 className="inline-flex h-10 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-gray-200 hover:bg-[#171717]"
               >
                 <svg viewBox="0 0 20 20" className="h-5 w-5" fill="none" aria-hidden="true">
@@ -290,6 +285,8 @@ export function Navbar() {
                 type="button"
                 onClick={() => {
                   setWalletOpen((v) => !v);
+                  setCommunityOpen(false);
+                  setLanguageOpen(false);
                   setServersOpen(false);
                 }}
                 className="inline-flex h-10 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-gray-200 hover:bg-[#171717]"
@@ -324,6 +321,8 @@ export function Navbar() {
                 type="button"
                 onClick={() => {
                   setServersOpen((v) => !v);
+                  setCommunityOpen(false);
+                  setLanguageOpen(false);
                   setWalletOpen(false);
                 }}
                 className="inline-flex h-10 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-gray-200 hover:bg-[#171717]"
@@ -410,16 +409,19 @@ export function Navbar() {
 
         <button
           type="button"
-          className="inline-flex rounded-lg border border-[#2a2a2a] px-3 py-2 text-sm font-semibold text-gray-300 hover:bg-[#1a1a1a] lg:hidden"
+          className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-[#2a2a2a] px-3 py-2 text-sm font-semibold text-gray-300 hover:bg-[#1a1a1a] lg:hidden"
           onClick={() => setMobileOpen((v) => !v)}
         >
+          <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" aria-hidden="true">
+            <path d="M3 5H17M3 10H17M3 15H17" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+          </svg>
           {t(lang, "nav.menu")}
         </button>
       </Container>
 
       {mobileOpen ? (
         <div className="border-t border-[#1e1e1e] bg-[#0d0d0d] lg:hidden">
-          <Container className="grid gap-2 py-3">
+          <Container className="grid gap-3 px-4 py-4 sm:px-6">
             {links.map((l) => (
               <Link
                 key={l.href}
@@ -432,19 +434,30 @@ export function Navbar() {
             ))}
 
             <div className="rounded-lg border border-[#2a2a2a] p-2">
-              <div className="px-2 pb-1 text-xs font-bold uppercase tracking-wide text-gray-500">{t(lang, "nav.community")}</div>
-              <div className="grid gap-1">
-                {communityLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className="rounded-lg px-3 py-2 text-sm font-medium text-gray-300 hover:bg-[#1a1a1a] hover:text-white"
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-              </div>
+              <button
+                type="button"
+                onClick={() => setMobileCommunityOpen((v) => !v)}
+                className="flex w-full items-center justify-between rounded-lg px-2 py-1 text-left text-xs font-bold uppercase tracking-wide text-gray-500"
+              >
+                <span>{t(lang, "nav.community")}</span>
+                <svg viewBox="0 0 20 20" className={`h-4 w-4 transition-transform ${mobileCommunityOpen ? "rotate-180" : "rotate-0"}`} fill="none" aria-hidden="true">
+                  <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+              {mobileCommunityOpen ? (
+                <div className="mt-1 grid gap-1">
+                  {communityLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className="rounded-lg px-3 py-2 text-sm font-medium text-gray-300 hover:bg-[#1a1a1a] hover:text-white"
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              ) : null}
             </div>
 
             {!user ? (
@@ -466,6 +479,78 @@ export function Navbar() {
               </div>
             ) : (
               <div className="mt-1 grid gap-2">
+                <div className="rounded-xl border border-[#2a2a2a] bg-[#101010] p-3">
+                  <div className="text-sm font-bold text-white">{(user.name && user.name.trim()) ? user.name : user.email.split("@")[0]}</div>
+                  <div className="mt-1 text-xs text-gray-500">{user.email}</div>
+                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                    <Link
+                      href="/profile"
+                      className="rounded-lg border border-[#2a2a2a] px-3 py-2 text-sm font-semibold text-gray-200 hover:bg-[#1a1a1a]"
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      {t(lang, "nav.profile")}
+                    </Link>
+                    <Link
+                      href="/dashboard"
+                      className="rounded-lg border border-[#2a2a2a] px-3 py-2 text-sm font-semibold text-gray-200 hover:bg-[#1a1a1a]"
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      {t(lang, "nav.viewAll")}
+                    </Link>
+                    <Link
+                      href="/wallet"
+                      className="rounded-lg border border-[#2a2a2a] px-3 py-2 text-sm font-semibold text-gray-200 hover:bg-[#1a1a1a]"
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      {t(lang, "nav.walletSummary")}
+                    </Link>
+                    <Link
+                      href="/wallet/add-funds"
+                      className="rounded-lg border border-[#2a2a2a] px-3 py-2 text-sm font-semibold text-gray-200 hover:bg-[#1a1a1a]"
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      {t(lang, "nav.addFunds")}
+                    </Link>
+                    <Link
+                      href="/billing"
+                      className="rounded-lg border border-[#2a2a2a] px-3 py-2 text-sm font-semibold text-gray-200 hover:bg-[#1a1a1a]"
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      {t(lang, "nav.invoicesSupport")}
+                    </Link>
+                    <Link
+                      href="/support"
+                      className="rounded-lg border border-[#2a2a2a] px-3 py-2 text-sm font-semibold text-gray-200 hover:bg-[#1a1a1a]"
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      {t(lang, "footer.support")}
+                    </Link>
+                  </div>
+                </div>
+
+                <div className="rounded-xl border border-[#2a2a2a] bg-[#101010] p-3">
+                  <div className="text-xs font-bold uppercase tracking-[0.08em] text-gray-500">{t(lang, "nav.yourServers")}</div>
+                  <div className="mt-3 grid gap-2">
+                    {userServers.length === 0 ? (
+                      <div className="rounded-lg border border-[#232323] px-3 py-2 text-sm text-gray-400">{t(lang, "nav.noServersYet")}</div>
+                    ) : (
+                      userServers.slice(0, 4).map((s) => (
+                        <Link
+                          key={s.id}
+                          href="/dashboard"
+                          className="flex items-center justify-between rounded-lg border border-[#232323] px-3 py-2 text-sm hover:bg-[#1a1a1a]"
+                          onClick={() => setMobileOpen(false)}
+                        >
+                          <span className="max-w-[180px] truncate font-semibold text-gray-200">{s.name}</span>
+                          <span className={`rounded-md px-2 py-0.5 text-[10px] font-bold ${s.status === "ACTIVE" ? "bg-[#1AD76F] text-black" : "bg-[#303030] text-gray-200"}`}>
+                            {s.status}
+                          </span>
+                        </Link>
+                      ))
+                    )}
+                  </div>
+                </div>
+
                 {user.role === "ADMIN" ? (
                   <Link
                     href="/admin"

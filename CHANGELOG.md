@@ -1,6 +1,7 @@
 # Changelog
 
-## 2026-03-14
+## 2026-03-16
 
-- Added a GitHub-safe `.env.example` with placeholders and setup-ready environment sections.
-- Unignored `.env.example` so it is committed and visible in the repository.
+- Changed the Community navbar dropdown to open on click instead of hover.
+- Updated the home Discord CTA to point to `discord.gg/wrld999`.
+- Improved the mobile layout for the navbar and homepage hero, stats, and plan section.
