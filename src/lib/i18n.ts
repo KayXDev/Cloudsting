@@ -13,6 +13,9 @@ export const SUPPORTED_LANGS = [
   "tr",
 ] as const;
 
+export const DEFAULT_LANG = "es" as const;
+export const LANG_COOKIE_NAME = "kx_lang";
+
 export type LangCode = (typeof SUPPORTED_LANGS)[number];
 
 export function isLangCode(value: unknown): value is LangCode {

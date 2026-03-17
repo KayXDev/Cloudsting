@@ -21,7 +21,8 @@ export function Footer() {
             <div className="text-xs font-bold uppercase tracking-[0.1em] text-[color:var(--text)]">{t(lang, "footer.services")}</div>
             <div className="mt-3 grid gap-2 text-sm">
               <Link className="text-[color:var(--muted)] hover:text-[color:var(--text)]" href="/pricing">{t(lang, "footer.minecraftHosting")}</Link>
-              <Link className="text-[color:var(--muted)] hover:text-[color:var(--text)]" href="/pricing">{t(lang, "footer.freeMinecraftHosting")}</Link>
+              <Link className="text-[color:var(--muted)] hover:text-[color:var(--text)]" href="/free-minecraft-hosting">{t(lang, "footer.freeMinecraftHosting")}</Link>
+              <Link className="text-[color:var(--muted)] hover:text-[color:var(--text)]" href="/modded-minecraft-hosting">Modded Minecraft Hosting</Link>
               <Link className="text-[color:var(--muted)] hover:text-[color:var(--text)]" href="/dashboard">{t(lang, "footer.accountArea")}</Link>
               <Link className="text-[color:var(--muted)] hover:text-[color:var(--text)]" href="/status">{t(lang, "footer.serviceStatus")}</Link>
             </div>
@@ -40,6 +41,8 @@ export function Footer() {
             <div className="text-xs font-bold uppercase tracking-[0.1em] text-[color:var(--text)]">{t(lang, "footer.resources")}</div>
             <div className="mt-3 grid gap-2 text-sm">
               <Link className="text-[color:var(--muted)] hover:text-[color:var(--text)]" href="/features">{t(lang, "footer.features")}</Link>
+              <Link className="text-[color:var(--muted)] hover:text-[color:var(--text)]" href="/guides">Guides</Link>
+              <Link className="text-[color:var(--muted)] hover:text-[color:var(--text)]" href="/guides/choose-minecraft-hosting">Choose Minecraft Hosting</Link>
               <Link className="text-[color:var(--muted)] hover:text-[color:var(--text)]" href="/support">{t(lang, "footer.support")}</Link>
               <Link className="text-[color:var(--muted)] hover:text-[color:var(--text)]" href="/faq">FAQ</Link>
             </div>

@@ -10,13 +10,15 @@ import { prisma } from "@/server/db";
 import { requireUser } from "@/server/auth/session";
 import { getLanguageFromCookies } from "@/server/i18n";
 
-export const metadata: Metadata = createMetadata({
-  title: "Support",
-  description: "Contact Cloudsting support for help with Minecraft servers, billing questions, migrations, and account issues.",
-  path: "/support",
-  keywords: ["minecraft hosting support", "cloudsting support", "hosting ticket support"],
-  noIndex: true,
-});
+export function generateMetadata(): Metadata {
+  return createMetadata({
+    title: "Support",
+    description: "Contact Cloudsting support for help with Minecraft servers, billing questions, migrations, and account issues.",
+    path: "/support",
+    keywords: ["minecraft hosting support", "cloudsting support", "hosting ticket support"],
+    noIndex: true,
+  });
+}
 
 function ticketTone(status: string) {
   if (status === "CLOSED") return "text-gray-300";

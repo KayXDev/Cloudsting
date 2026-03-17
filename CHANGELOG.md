@@ -2,8 +2,9 @@
 
 ## 2026-03-17
 
-- Added a reusable SEO layer with canonical metadata, Open Graph, Twitter cards, and shared site configuration.
-- Added structured data for the global layout, home page, pricing page, and FAQ page.
-- Added discovery endpoints for search and AI consumers: `robots.txt`, `sitemap.xml`, `manifest.webmanifest`, `llms.txt`, and `llms-full.txt`.
-- Added page-level SEO metadata for key public routes and documented the new SEO setup.
-- Fixed the JSON-LD runtime issue by changing structured data scripts to use a root object with `@context` and `@graph`.
+- Added locale-aware SEO with hreflang-compatible language aliases via middleware and richer metadata alternates.
+- Added generated Open Graph and Twitter images for branded social sharing.
+- Audited public and private routes page by page, keeping key marketing pages indexable and setting noindex on account, checkout, support, and admin flows.
+- Added new SEO landing pages for free Minecraft hosting and modded Minecraft hosting.
+- Added a new guides hub with long-form articles for choosing Minecraft hosting and reducing server lag.
+- Expanded internal linking and on-page copy across home, pricing, features, sitemap, and footer to support topical clustering.

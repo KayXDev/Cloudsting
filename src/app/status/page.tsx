@@ -8,12 +8,15 @@ import { syncNodesFromPterodactyl } from "@/server/stock";
 import { getLanguageFromCookies } from "@/server/i18n";
 import { t } from "@/lib/i18n";
 
-export const metadata: Metadata = createMetadata({
-  title: "Platform Status",
-  description: "Check Cloudsting live platform health, API availability, database connectivity, node sync, and active server metrics.",
-  path: "/status",
-  keywords: ["minecraft hosting status", "cloudsting status", "server status page"],
-});
+export function generateMetadata(): Metadata {
+  return createMetadata({
+    title: "Platform Status",
+    description: "Check Cloudsting live platform health, API availability, database connectivity, node sync, and active server metrics.",
+    path: "/status",
+    keywords: ["minecraft hosting status", "cloudsting status", "server status page"],
+    hreflang: true,
+  });
+}
 
 export default async function StatusPage() {
   const lang = getLanguageFromCookies();

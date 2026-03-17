@@ -1,12 +1,23 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Container } from "@/components/Container";
 import { Card } from "@/components/Card";
 import { LogoutButton } from "@/components/LogoutButton";
+import { createMetadata } from "@/lib/seo";
 import { t } from "@/lib/i18n";
 import { requireUser } from "@/server/auth/session";
 import { prisma } from "@/server/db";
 import { getLanguageFromCookies } from "@/server/i18n";
+
+export function generateMetadata(): Metadata {
+  return createMetadata({
+    title: "Dashboard",
+    description: "Manage your Cloudsting Minecraft servers, account access, and active hosting resources.",
+    path: "/dashboard",
+    noIndex: true,
+  });
+}
 
 export default async function DashboardPage() {
   const lang = getLanguageFromCookies();

@@ -1,10 +1,21 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Card } from "@/components/Card";
 import { Container } from "@/components/Container";
+import { createMetadata } from "@/lib/seo";
 import { t } from "@/lib/i18n";
 import { requireUser } from "@/server/auth/session";
 import { getLanguageFromCookies } from "@/server/i18n";
+
+export function generateMetadata(): Metadata {
+  return createMetadata({
+    title: "Add Funds",
+    description: "Add funds and review Cloudsting payment options for your hosting account.",
+    path: "/wallet/add-funds",
+    noIndex: true,
+  });
+}
 
 export default async function WalletAddFundsPage() {
   const lang = getLanguageFromCookies();

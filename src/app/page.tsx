@@ -12,16 +12,20 @@ import { t } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = createMetadata({
-  title: "Minecraft Server Hosting",
-  description:
-    "Launch free and premium Minecraft servers in under 60 seconds with NVMe storage, DDoS protection, and scalable infrastructure.",
-  path: "/",
-  keywords: ["instant minecraft hosting", "minecraft server deployment", "minecraft hosting plans"],
-});
+export function generateMetadata(): Metadata {
+  return createMetadata({
+    title: "Minecraft Server Hosting",
+    description:
+      "Launch free and premium Minecraft servers in under 60 seconds with NVMe storage, DDoS protection, and scalable infrastructure.",
+    path: "/",
+    keywords: ["instant minecraft hosting", "minecraft server deployment", "minecraft hosting plans"],
+    hreflang: true,
+  });
+}
 
 export default async function Home() {
   const lang = getLanguageFromCookies();
+  const isEs = lang === "es";
 
   const numberFmt = new Intl.NumberFormat(lang === "es" ? "es-ES" : "en-US");
   const compactFmt = new Intl.NumberFormat(lang === "es" ? "es-ES" : "en-US", {
@@ -69,6 +73,58 @@ export default async function Home() {
     : [];
 
   const stats = await getPublicStats().catch(() => ({ users: 0, serversOnline: 0, playersOnline: 0 }));
+  const learnCards = isEs
+    ? [
+        {
+          href: "/free-minecraft-hosting",
+          title: "Hosting gratis de Minecraft",
+          description: "Qué puedes esperar de un plan gratuito, cuándo se te queda corto y cómo escalar sin migraciones traumáticas.",
+        },
+        {
+          href: "/modded-minecraft-hosting",
+          title: "Hosting para servidores modded",
+          description: "Cómo elegir RAM, CPU y disco para Fabric, Forge, modpacks pesados y comunidades con plugins.",
+        },
+        {
+          href: "/guides/choose-minecraft-hosting",
+          title: "Guía para elegir hosting",
+          description: "Checklist práctica para comparar panel, backups, protección DDoS, rendimiento y soporte antes de comprar.",
+        },
+      ]
+    : [
+        {
+          href: "/free-minecraft-hosting",
+          title: "Free Minecraft hosting",
+          description: "Learn when free hosting is enough, when it becomes limiting, and how to scale without painful migrations.",
+        },
+        {
+          href: "/modded-minecraft-hosting",
+          title: "Modded Minecraft hosting",
+          description: "Understand how much RAM, CPU, and NVMe storage you need for Forge, Fabric, and heavier modpacks.",
+        },
+        {
+          href: "/guides/choose-minecraft-hosting",
+          title: "How to choose hosting",
+          description: "A practical checklist for comparing panel quality, backups, DDoS protection, performance, and support.",
+        },
+      ];
+  const seoContent = isEs
+    ? {
+        heading: "Qué hace que un hosting de Minecraft posicione y convierta",
+        paragraphs: [
+          "La mayoría de webs de hosting tienen precios y una tabla de recursos, pero muy pocas explican bien qué problema resuelven. Si alguien busca hosting de Minecraft, normalmente no solo compara precio: quiere saber si el servidor irá fluido, si podrá montar mods, si hay backups y si el panel es fácil de usar.",
+          "Cloudsting ahora responde mejor a esa intención porque no solo muestra planes. También conecta cada oferta con páginas específicas para hosting gratis, hosting modded y guías prácticas. Eso ayuda a Google a entender mejor la temática del proyecto y también mejora la navegación interna para usuarios que todavía están comparando opciones.",
+          "A nivel de producto, la propuesta se apoya en despliegue rápido, NVMe, mitigación DDoS y herramientas claras de gestión. A nivel SEO, eso se convierte en clusters de contenido: páginas transaccionales para captar búsquedas con intención de compra y páginas informativas para captar búsquedas comparativas o de aprendizaje.",
+        ],
+      }
+    : {
+        heading: "What makes Minecraft hosting content rank and convert",
+        paragraphs: [
+          "Most hosting sites publish prices and resource tables, but very few explain the real problem they solve. When someone searches for Minecraft hosting, they are usually not comparing price alone. They want to know whether the server will run smoothly, whether mods are supported, whether backups are included, and whether the panel is simple to manage.",
+          "Cloudsting now answers that search intent more clearly because it does not stop at plan listings. It also connects product pages to focused pages for free hosting, modded hosting, and practical guides. That gives search engines stronger topical signals and gives visitors a clearer path while they are still evaluating options.",
+          "From a product angle, the offer is built around fast deployment, NVMe storage, DDoS mitigation, and practical controls. From an SEO angle, that becomes a content cluster: transactional pages for people ready to buy and informational pages for people comparing, researching, or troubleshooting.",
+        ],
+      };
   const homeSchema = {
     "@context": "https://schema.org",
     "@graph": [
@@ -236,6 +292,32 @@ export default async function Home() {
                 <div className="mt-1 text-sm text-[color:var(--muted)]">{f.description}</div>
               </Card>
             ))}
+          </div>
+        </Container>
+      </section>
+
+      <section>
+        <Container className="py-14 sm:py-16">
+          <div className="grid gap-8 lg:grid-cols-[1.3fr_0.9fr] lg:items-start">
+            <Card className="p-6 sm:p-8">
+              <h2 className="text-2xl font-extrabold tracking-tight sm:text-3xl">{seoContent.heading}</h2>
+              <div className="mt-5 grid gap-4 text-sm leading-7 text-[color:var(--muted)] sm:text-base">
+                {seoContent.paragraphs.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+              </div>
+            </Card>
+
+            <div className="grid gap-4">
+              {learnCards.map((card) => (
+                <Link key={card.href} href={card.href}>
+                  <Card className="p-5 transition hover:border-[color:var(--accent)]/60 hover:bg-[color:var(--surface2)]">
+                    <div className="text-sm font-extrabold text-[color:var(--text)]">{card.title}</div>
+                    <div className="mt-2 text-sm text-[color:var(--muted)]">{card.description}</div>
+                  </Card>
+                </Link>
+              ))}
+            </div>
           </div>
         </Container>
       </section>

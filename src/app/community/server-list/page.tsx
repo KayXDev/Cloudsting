@@ -1,12 +1,24 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import type { Prisma } from "@prisma/client";
 import { ServerStatus } from "@prisma/client";
 import { Container } from "@/components/Container";
+import { createMetadata } from "@/lib/seo";
 import { prisma } from "@/server/db";
 import { getLanguageFromCookies } from "@/server/i18n";
 import { t } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
+
+export function generateMetadata(): Metadata {
+  return createMetadata({
+    title: "Public Minecraft Server List",
+    description: "Browse active Cloudsting Minecraft servers, public owner stats, plan tiers, and hosted community worlds.",
+    path: "/community/server-list",
+    keywords: ["minecraft server list", "public minecraft servers", "cloudsting community servers"],
+    hreflang: true,
+  });
+}
 
 type PageProps = {
   searchParams?: {

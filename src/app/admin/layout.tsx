@@ -1,10 +1,21 @@
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Container } from "@/components/Container";
 import { AdminNav } from "@/components/AdminNav";
+import { createMetadata } from "@/lib/seo";
 import { t } from "@/lib/i18n";
 import { requireAdmin } from "@/server/auth/session";
 import { getLanguageFromCookies } from "@/server/i18n";
+
+export function generateMetadata(): Metadata {
+  return createMetadata({
+    title: "Admin",
+    description: "Cloudsting administrative control center.",
+    path: "/admin",
+    noIndex: true,
+  });
+}
 
 export default async function AdminLayout(props: { children: ReactNode }) {
   const lang = getLanguageFromCookies();

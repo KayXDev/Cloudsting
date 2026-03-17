@@ -1,9 +1,20 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/server/auth/session";
 import { prisma } from "@/server/db";
 import { CheckoutPageForm } from "@/components/CheckoutPageForm";
+import { createMetadata } from "@/lib/seo";
 import { getLanguageFromCookies } from "@/server/i18n";
 import { t } from "@/lib/i18n";
+
+export function generateMetadata(): Metadata {
+  return createMetadata({
+    title: "Checkout",
+    description: "Complete checkout for your selected Cloudsting Minecraft hosting plan.",
+    path: "/checkout",
+    noIndex: true,
+  });
+}
 
 export default async function CheckoutPage({ params }: { params: Promise<{ planSlug: string }> }) {
   const lang = getLanguageFromCookies();

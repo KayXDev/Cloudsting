@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { Card } from "@/components/Card";
 import { Container } from "@/components/Container";
 import { PricingClientGrid, type PricingPlan } from "@/components/PricingClientGrid";
 import { absoluteUrl, createMetadata } from "@/lib/seo";
@@ -10,13 +11,16 @@ import { t } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = createMetadata({
-  title: "Minecraft Hosting Pricing",
-  description:
-    "Compare Cloudsting Minecraft hosting plans with instant deployment, NVMe SSD storage, DDoS protection, and flexible resources.",
-  path: "/pricing",
-  keywords: ["minecraft pricing", "minecraft hosting plans", "budget minecraft hosting"],
-});
+export function generateMetadata(): Metadata {
+  return createMetadata({
+    title: "Minecraft Hosting Pricing",
+    description:
+      "Compare Cloudsting Minecraft hosting plans with instant deployment, NVMe SSD storage, DDoS protection, and flexible resources.",
+    path: "/pricing",
+    keywords: ["minecraft pricing", "minecraft hosting plans", "budget minecraft hosting"],
+    hreflang: true,
+  });
+}
 
 function fallbackPlans(lang: Parameters<typeof t>[0]): PricingPlan[] {
   return [
@@ -73,6 +77,7 @@ function fallbackPlans(lang: Parameters<typeof t>[0]): PricingPlan[] {
 
 export default async function PricingPage() {
   const lang = getLanguageFromCookies();
+  const isEs = lang === "es";
   const hasSession = Boolean(await getAccessTokenFromCookies());
 
   const dbConfigured = Boolean(process.env.DATABASE_URL);
@@ -102,6 +107,47 @@ export default async function PricingPage() {
       },
     })),
   };
+  const comparisonBlocks = isEs
+    ? [
+        {
+          title: "Hosting gratis para empezar",
+          body: "Si estás montando una comunidad pequeña o quieres validar una idea, el hosting gratis sirve para aprender, testear plugins y lanzar un mundo privado. Cuando ya necesitas más estabilidad o jugadores concurrentes, toca pasar a un plan con más RAM, CPU y mejores backups.",
+          href: "/free-minecraft-hosting",
+          cta: "Ver hosting gratis",
+        },
+        {
+          title: "Hosting modded con recursos reales",
+          body: "Los modpacks pesados penalizan CPU, RAM y disco. Si vas a usar Forge, Fabric o packs con generación agresiva de chunks, necesitas mirar algo más que el precio mensual. Esta guía te orienta para no comprar de menos.",
+          href: "/modded-minecraft-hosting",
+          cta: "Ver hosting modded",
+        },
+        {
+          title: "Cómo elegir el plan correcto",
+          body: "No todos los proyectos necesitan el mismo servidor. La mejor compra depende del número de jugadores, el tipo de software, si usas mods o plugins, y cuánto te importa la migración futura.",
+          href: "/guides/choose-minecraft-hosting",
+          cta: "Leer guía",
+        },
+      ]
+    : [
+        {
+          title: "Free hosting to get started",
+          body: "If you are building a small community or testing an idea, free hosting is enough for early experiments, plugins, and private worlds. Once you need stronger stability or more concurrent players, you need more RAM, CPU, and recovery options.",
+          href: "/free-minecraft-hosting",
+          cta: "See free hosting",
+        },
+        {
+          title: "Modded hosting with real headroom",
+          body: "Heavy modpacks stress CPU, RAM, and storage. If you plan to run Forge, Fabric, or chunk-heavy packs, price alone is not a good buying signal. This page helps you size infrastructure correctly.",
+          href: "/modded-minecraft-hosting",
+          cta: "See modded hosting",
+        },
+        {
+          title: "How to choose the right plan",
+          body: "The best purchase depends on player count, software stack, mods versus plugins, and how much future scaling matters for your project.",
+          href: "/guides/choose-minecraft-hosting",
+          cta: "Read guide",
+        },
+      ];
 
   return (
     <main>
@@ -146,6 +192,18 @@ export default async function PricingPage() {
         ) : null}
 
         <PricingClientGrid plans={plans} canCheckout={dbConfigured && hasSession} />
+
+        <div className="mt-12 grid gap-4 lg:grid-cols-3">
+          {comparisonBlocks.map((block) => (
+            <Card key={block.href} className="p-6">
+              <h2 className="text-lg font-extrabold text-[color:var(--text)]">{block.title}</h2>
+              <p className="mt-3 text-sm leading-7 text-[color:var(--muted)]">{block.body}</p>
+              <Link href={block.href} className="mt-5 inline-flex text-sm font-bold text-[color:var(--accent)]">
+                {block.cta}
+              </Link>
+            </Card>
+          ))}
+        </div>
       </Container>
     </main>
   );

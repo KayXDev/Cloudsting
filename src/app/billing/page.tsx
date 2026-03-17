@@ -1,10 +1,21 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Card } from "@/components/Card";
 import { Container } from "@/components/Container";
+import { createMetadata } from "@/lib/seo";
 import { t } from "@/lib/i18n";
 import { requireUser } from "@/server/auth/session";
 import { prisma } from "@/server/db";
 import { getLanguageFromCookies } from "@/server/i18n";
+
+export function generateMetadata(): Metadata {
+  return createMetadata({
+    title: "Billing",
+    description: "Review Cloudsting invoices, payment providers, plan purchases, and order history.",
+    path: "/billing",
+    noIndex: true,
+  });
+}
 
 export default async function BillingPage() {
   const lang = getLanguageFromCookies();

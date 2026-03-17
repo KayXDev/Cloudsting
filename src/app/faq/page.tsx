@@ -5,13 +5,16 @@ import { absoluteUrl, createMetadata } from "@/lib/seo";
 import { getLanguageFromCookies } from "@/server/i18n";
 import { t } from "@/lib/i18n";
 
-export const metadata: Metadata = createMetadata({
-  title: "Minecraft Hosting FAQ",
-  description:
-    "Find answers about deployment times, backups, mods, panel access, and how Cloudsting Minecraft hosting works.",
-  path: "/faq",
-  keywords: ["minecraft hosting faq", "minecraft hosting support", "modded server hosting faq"],
-});
+export function generateMetadata(): Metadata {
+  return createMetadata({
+    title: "Minecraft Hosting FAQ",
+    description:
+      "Find answers about deployment times, backups, mods, panel access, and how Cloudsting Minecraft hosting works.",
+    path: "/faq",
+    keywords: ["minecraft hosting faq", "minecraft hosting support", "modded server hosting faq"],
+    hreflang: true,
+  });
+}
 
 export default function FaqPage() {
   const lang = getLanguageFromCookies();

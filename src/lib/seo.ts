@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
+import { DEFAULT_LANG, isLangCode, SUPPORTED_LANGS, type LangCode } from "@/lib/i18n";
 
 type SeoOptions = {
   title?: string;
@@ -6,6 +8,7 @@ type SeoOptions = {
   path?: string;
   keywords?: string[];
   noIndex?: boolean;
+  hreflang?: boolean;
 };
 
 const DEFAULT_BASE_URL = "http://localhost:3000";
@@ -27,7 +30,21 @@ export const siteConfig = {
   ],
   discordUrl: "https://discord.gg/wrld999",
   supportEmail: "support@cloudsting.com",
-  ogImagePath: "/home-jungle-bg.jpg",
+  ogImagePath: "/opengraph-image",
+  twitterImagePath: "/twitter-image",
+};
+
+const OPEN_GRAPH_LOCALE_BY_LANG: Partial<Record<LangCode, string>> = {
+  en: "en_US",
+  es: "es_ES",
+  fr: "fr_FR",
+  de: "de_DE",
+  it: "it_IT",
+  pt: "pt_PT",
+  nl: "nl_NL",
+  pl: "pl_PL",
+  cs: "cs_CZ",
+  tr: "tr_TR",
 };
 
 function normalizeBaseUrl(value?: string) {
@@ -44,15 +61,59 @@ export function absoluteUrl(path = "/") {
   return `${getBaseUrl()}${normalizedPath}`;
 }
 
+function normalizePath(path = "/") {
+  if (!path || path === "/") return "/";
+  return path.startsWith("/") ? path.replace(/\/$/, "") : `/${path.replace(/\/$/, "")}`;
+}
+
+export function buildLocalizedPath(path: string, lang: LangCode) {
+  const normalizedPath = normalizePath(path);
+  if (normalizedPath === "/") return `/${lang}`;
+  return `/${lang}${normalizedPath}`;
+}
+
+function stripLocalePrefix(pathname: string) {
+  const normalizedPath = normalizePath(pathname);
+  const [, maybeLang, ...rest] = normalizedPath.split("/");
+  if (!isLangCode(maybeLang)) return normalizedPath;
+  return rest.length === 0 ? "/" : `/${rest.join("/")}`;
+}
+
+function getRequestLang() {
+  const headerValue = headers().get("x-kx-lang");
+  return isLangCode(headerValue) ? headerValue : DEFAULT_LANG;
+}
+
+function getRequestPath(path: string) {
+  const requestedPath = headers().get("x-kx-original-pathname");
+  if (!requestedPath) return normalizePath(path);
+  return normalizePath(requestedPath);
+}
+
+function createLanguageAlternates(path: string) {
+  const normalizedPath = normalizePath(path);
+  const languages = Object.fromEntries(
+    SUPPORTED_LANGS.map((lang) => [lang, buildLocalizedPath(normalizedPath, lang)])
+  ) as Record<string, string>;
+
+  languages["x-default"] = normalizedPath;
+
+  return languages;
+}
+
 export function createMetadata({
   title,
   description,
   path = "/",
   keywords = [],
   noIndex = false,
+  hreflang = false,
 }: SeoOptions): Metadata {
+  const normalizedPath = normalizePath(path);
   const fullTitle = title ? `${title} | ${siteConfig.name}` : siteConfig.name;
-  const canonical = path === "/" ? "/" : path.replace(/\/$/, "");
+  const requestLang = getRequestLang();
+  const requestPath = getRequestPath(normalizedPath);
+  const canonical = stripLocalePrefix(requestPath) === normalizedPath ? requestPath : normalizedPath;
 
   return {
     metadataBase: new URL(getBaseUrl()),
@@ -67,10 +128,11 @@ export function createMetadata({
     referrer: "origin-when-cross-origin",
     alternates: {
       canonical,
+      languages: !noIndex && hreflang ? createLanguageAlternates(normalizedPath) : undefined,
     },
     openGraph: {
       type: "website",
-      locale: "en_US",
+      locale: OPEN_GRAPH_LOCALE_BY_LANG[requestLang] ?? "en_US",
       url: canonical,
       siteName: siteConfig.name,
       title: fullTitle,
@@ -86,7 +148,7 @@ export function createMetadata({
       card: "summary_large_image",
       title: fullTitle,
       description,
-      images: [siteConfig.ogImagePath],
+      images: [siteConfig.twitterImagePath],
     },
     robots: noIndex
       ? {

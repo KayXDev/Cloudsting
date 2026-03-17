@@ -19,17 +19,20 @@ const bodyFont = Plus_Jakarta_Sans({
   weight: ["400", "500", "600", "700", "800"],
 });
 
-export const metadata: Metadata = {
-  ...createMetadata({
-    description: siteConfig.description,
-    keywords: ["minecraft panel", "minecraft infrastructure", "game server hosting"],
-  }),
-  icons: {
-    icon: "/kx-minecraft-mark.svg",
-    shortcut: "/kx-minecraft-mark.svg",
-    apple: "/kx-minecraft-mark.svg",
-  },
-};
+export function generateMetadata(): Metadata {
+  return {
+    ...createMetadata({
+      description: siteConfig.description,
+      keywords: ["minecraft panel", "minecraft infrastructure", "game server hosting"],
+      hreflang: true,
+    }),
+    icons: {
+      icon: "/kx-minecraft-mark.svg",
+      shortcut: "/kx-minecraft-mark.svg",
+      apple: "/kx-minecraft-mark.svg",
+    },
+  };
+}
 
 export default function RootLayout({
   children,
