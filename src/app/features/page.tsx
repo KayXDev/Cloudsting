@@ -1,7 +1,17 @@
+import type { Metadata } from "next";
 import { Container } from "@/components/Container";
 import { Card } from "@/components/Card";
+import { createMetadata } from "@/lib/seo";
 import { getLanguageFromCookies } from "@/server/i18n";
 import { t } from "@/lib/i18n";
+
+export const metadata: Metadata = createMetadata({
+  title: "Minecraft Hosting Features",
+  description:
+    "Explore Cloudsting features including Ryzen-powered nodes, NVMe SSD storage, DDoS protection, backups, monitoring, and support.",
+  path: "/features",
+  keywords: ["minecraft hosting features", "ryzen minecraft hosting", "ddos protected minecraft hosting"],
+});
 
 export default function FeaturesPage() {
   const lang = getLanguageFromCookies();

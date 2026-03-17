@@ -1,10 +1,19 @@
+import type { Metadata } from "next";
 import { Container } from "@/components/Container";
 import { Card } from "@/components/Card";
+import { createMetadata } from "@/lib/seo";
 import { prisma } from "@/server/db";
 import { env } from "@/server/env";
 import { syncNodesFromPterodactyl } from "@/server/stock";
 import { getLanguageFromCookies } from "@/server/i18n";
 import { t } from "@/lib/i18n";
+
+export const metadata: Metadata = createMetadata({
+  title: "Platform Status",
+  description: "Check Cloudsting live platform health, API availability, database connectivity, node sync, and active server metrics.",
+  path: "/status",
+  keywords: ["minecraft hosting status", "cloudsting status", "server status page"],
+});
 
 export default async function StatusPage() {
   const lang = getLanguageFromCookies();

@@ -1,14 +1,24 @@
 import Link from "next/link";
 import Image from "next/image";
+import type { Metadata } from "next";
 import { Container } from "@/components/Container";
 import { Card } from "@/components/Card";
 import { PricingClientGrid, type PricingPlan } from "@/components/PricingClientGrid";
+import { absoluteUrl, createMetadata, siteConfig } from "@/lib/seo";
 import { prisma } from "@/server/db";
 import { getLanguageFromCookies } from "@/server/i18n";
 import { getPublicStats } from "@/server/publicStats";
 import { t } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = createMetadata({
+  title: "Minecraft Server Hosting",
+  description:
+    "Launch free and premium Minecraft servers in under 60 seconds with NVMe storage, DDoS protection, and scalable infrastructure.",
+  path: "/",
+  keywords: ["instant minecraft hosting", "minecraft server deployment", "minecraft hosting plans"],
+});
 
 export default async function Home() {
   const lang = getLanguageFromCookies();
@@ -59,9 +69,54 @@ export default async function Home() {
     : [];
 
   const stats = await getPublicStats().catch(() => ({ users: 0, serversOnline: 0, playersOnline: 0 }));
+  const homeSchema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Service",
+        name: "Minecraft server hosting",
+        serviceType: "Minecraft server hosting",
+        provider: {
+          "@type": "Organization",
+          name: siteConfig.name,
+          url: absoluteUrl("/"),
+        },
+        areaServed: "Worldwide",
+        availableChannel: {
+          "@type": "ServiceChannel",
+          serviceUrl: absoluteUrl("/pricing"),
+        },
+        description: siteConfig.description,
+        offers: plans.slice(0, 6).map((plan) => ({
+          "@type": "Offer",
+          url: absoluteUrl(`/checkout/${plan.slug}`),
+          priceCurrency: "USD",
+          price: (plan.priceMonthlyCents / 100).toFixed(2),
+          availability: "https://schema.org/InStock",
+          itemOffered: {
+            "@type": "Product",
+            name: plan.name,
+            description: `${Math.round(plan.ramMb / 1024)} GB RAM, ${plan.cpuPercent}% CPU, ${Math.round(plan.diskMb / 1024)} GB NVMe SSD`,
+          },
+        })),
+      },
+      {
+        "@type": "AggregateOffer",
+        url: absoluteUrl("/pricing"),
+        offerCount: plans.length,
+        lowPrice: plans.length > 0 ? (plans[0].priceMonthlyCents / 100).toFixed(2) : "0.00",
+        highPrice: plans.length > 0 ? (plans[plans.length - 1].priceMonthlyCents / 100).toFixed(2) : "0.00",
+        priceCurrency: "USD",
+      },
+    ],
+  };
 
   return (
     <main>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(homeSchema) }}
+      />
       <section className="home-hero-bg relative overflow-hidden">
         <div className="home-hero-stars" />
         <div className="home-hero-stars-2" />

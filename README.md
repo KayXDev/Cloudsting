@@ -238,6 +238,13 @@ All API endpoints are implemented via Next.js App Router route handlers.
 - Server components read the cookie and render translated content.
 - Client components use `LanguageProvider` and `t(lang, key)`.
 
+## 🔎 SEO / AI discovery
+
+- Global metadata now includes canonical URLs, Open Graph, Twitter cards, and richer robots directives.
+- Public discovery endpoints are available at `/robots.txt`, `/sitemap.xml`, `/manifest.webmanifest`, `/llms.txt`, and `/llms-full.txt`.
+- Public-facing marketing pages expose structured data for search engines and AI systems.
+- Set `APP_URL` to the production domain so canonical URLs, sitemap entries, and AI discovery files point to the live site.
+
 ## 🧾 Payments + Provisioning Flow
 
 1. User selects a plan → `/checkout/[planSlug]`

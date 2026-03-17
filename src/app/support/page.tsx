@@ -1,12 +1,22 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { Container } from "@/components/Container";
 import { Card } from "@/components/Card";
 import { SupportTicketComposer } from "@/components/SupportTicketComposer";
 import { SupportTicketReplyForm } from "@/components/SupportTicketReplyForm";
+import { createMetadata } from "@/lib/seo";
 import { t } from "@/lib/i18n";
 import { prisma } from "@/server/db";
 import { requireUser } from "@/server/auth/session";
 import { getLanguageFromCookies } from "@/server/i18n";
+
+export const metadata: Metadata = createMetadata({
+  title: "Support",
+  description: "Contact Cloudsting support for help with Minecraft servers, billing questions, migrations, and account issues.",
+  path: "/support",
+  keywords: ["minecraft hosting support", "cloudsting support", "hosting ticket support"],
+  noIndex: true,
+});
 
 function ticketTone(status: string) {
   if (status === "CLOSED") return "text-gray-300";

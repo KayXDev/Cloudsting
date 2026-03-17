@@ -1,7 +1,17 @@
+import type { Metadata } from "next";
 import { Container } from "@/components/Container";
 import { Card } from "@/components/Card";
+import { absoluteUrl, createMetadata } from "@/lib/seo";
 import { getLanguageFromCookies } from "@/server/i18n";
 import { t } from "@/lib/i18n";
+
+export const metadata: Metadata = createMetadata({
+  title: "Minecraft Hosting FAQ",
+  description:
+    "Find answers about deployment times, backups, mods, panel access, and how Cloudsting Minecraft hosting works.",
+  path: "/faq",
+  keywords: ["minecraft hosting faq", "minecraft hosting support", "modded server hosting faq"],
+});
 
 export default function FaqPage() {
   const lang = getLanguageFromCookies();
@@ -12,9 +22,26 @@ export default function FaqPage() {
     { qKey: "faq.items.mods.q", aKey: "faq.items.mods.a" },
     { qKey: "faq.items.access.q", aKey: "faq.items.access.a" },
   ];
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: items.map((item) => ({
+      "@type": "Question",
+      name: t(lang, item.qKey),
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: t(lang, item.aKey),
+      },
+    })),
+    url: absoluteUrl("/faq"),
+  };
 
   return (
     <main>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       <Container className="py-16">
         <h1 className="text-3xl font-extrabold tracking-tight">{t(lang, "faq.title")}</h1>
         <div className="mt-10 grid gap-3">

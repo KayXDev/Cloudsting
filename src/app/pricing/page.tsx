@@ -1,12 +1,22 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { Container } from "@/components/Container";
 import { PricingClientGrid, type PricingPlan } from "@/components/PricingClientGrid";
+import { absoluteUrl, createMetadata } from "@/lib/seo";
 import { prisma } from "@/server/db";
 import { getAccessTokenFromCookies } from "@/server/auth/session";
 import { getLanguageFromCookies } from "@/server/i18n";
 import { t } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = createMetadata({
+  title: "Minecraft Hosting Pricing",
+  description:
+    "Compare Cloudsting Minecraft hosting plans with instant deployment, NVMe SSD storage, DDoS protection, and flexible resources.",
+  path: "/pricing",
+  keywords: ["minecraft pricing", "minecraft hosting plans", "budget minecraft hosting"],
+});
 
 function fallbackPlans(lang: Parameters<typeof t>[0]): PricingPlan[] {
   return [
@@ -73,9 +83,32 @@ export default async function PricingPage() {
         orderBy: { priceMonthlyCents: "asc" },
       })
     : fallbackPlans(lang);
+  const pricingSchema = {
+    "@context": "https://schema.org",
+    "@type": "OfferCatalog",
+    name: "Cloudsting Minecraft hosting plans",
+    url: absoluteUrl("/pricing"),
+    itemListElement: plans.map((plan, index) => ({
+      "@type": "Offer",
+      position: index + 1,
+      url: absoluteUrl(`/checkout/${plan.slug}`),
+      priceCurrency: "USD",
+      price: (plan.priceMonthlyCents / 100).toFixed(2),
+      availability: "https://schema.org/InStock",
+      itemOffered: {
+        "@type": "Product",
+        name: plan.name,
+        description: `${Math.round(plan.ramMb / 1024)} GB RAM, ${plan.cpuPercent}% CPU, ${Math.round(plan.diskMb / 1024)} GB NVMe SSD`,
+      },
+    })),
+  };
 
   return (
     <main>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(pricingSchema) }}
+      />
       <Container className="py-16">
         <div className="mx-auto max-w-4xl text-center">
           <h1 className="text-5xl font-extrabold tracking-tight text-white md:text-6xl">

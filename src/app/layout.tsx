@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { LanguageProvider } from "@/components/LanguageProvider";
+import { absoluteUrl, createMetadata, siteConfig } from "@/lib/seo";
 import { getLanguageFromCookies } from "@/server/i18n";
 
 const headingFont = Oxanium({
@@ -19,8 +20,10 @@ const bodyFont = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Cloudsting",
-  description: "Professional Minecraft server hosting platform.",
+  ...createMetadata({
+    description: siteConfig.description,
+    keywords: ["minecraft panel", "minecraft infrastructure", "game server hosting"],
+  }),
   icons: {
     icon: "/kx-minecraft-mark.svg",
     shortcut: "/kx-minecraft-mark.svg",
@@ -34,10 +37,47 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const lang = getLanguageFromCookies();
+  const siteSchema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        name: siteConfig.name,
+        url: absoluteUrl("/"),
+        logo: absoluteUrl("/kx-minecraft-mark.svg"),
+        email: siteConfig.supportEmail,
+        sameAs: [siteConfig.discordUrl],
+        contactPoint: [
+          {
+            "@type": "ContactPoint",
+            contactType: "customer support",
+            email: siteConfig.supportEmail,
+            availableLanguage: ["English", "Spanish", "French", "German", "Portuguese"],
+          },
+        ],
+      },
+      {
+        "@type": "WebSite",
+        name: siteConfig.name,
+        url: absoluteUrl("/"),
+        description: siteConfig.description,
+        inLanguage: "en",
+        potentialAction: {
+          "@type": "SearchAction",
+          target: `${absoluteUrl("/community/search")}?q={search_term_string}`,
+          "query-input": "required name=search_term_string",
+        },
+      },
+    ],
+  };
 
   return (
     <html lang={lang}>
       <body className={`${headingFont.variable} ${bodyFont.variable} antialiased`}>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteSchema) }}
+        />
         <LanguageProvider initialLang={lang}>
           <div className="relative min-h-dvh kx-animated-bg">
             <div className="kx-noise" />
