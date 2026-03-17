@@ -4,8 +4,17 @@ import { absoluteUrl, buildLocalizedPath } from "@/lib/seo";
 
 const routes = [
   { path: "/", changeFrequency: "daily", priority: 1 },
+  { path: "/minecraft-server-hosting", changeFrequency: "weekly", priority: 0.94 },
+  { path: "/minecraft-hosting-europe", changeFrequency: "weekly", priority: 0.9 },
+  { path: "/forge-server-hosting", changeFrequency: "weekly", priority: 0.88 },
+  { path: "/fabric-server-hosting", changeFrequency: "weekly", priority: 0.88 },
+  { path: "/paper-server-hosting", changeFrequency: "weekly", priority: 0.88 },
   { path: "/free-minecraft-hosting", changeFrequency: "weekly", priority: 0.88 },
   { path: "/modded-minecraft-hosting", changeFrequency: "weekly", priority: 0.88 },
+  { path: "/blog", changeFrequency: "weekly", priority: 0.84 },
+  { path: "/blog/how-much-ram-for-minecraft-server", changeFrequency: "monthly", priority: 0.78 },
+  { path: "/blog/forge-vs-fabric-for-server-owners", changeFrequency: "monthly", priority: 0.78 },
+  { path: "/blog/how-to-back-up-a-minecraft-server", changeFrequency: "monthly", priority: 0.78 },
   { path: "/guides", changeFrequency: "weekly", priority: 0.82 },
   { path: "/guides/choose-minecraft-hosting", changeFrequency: "monthly", priority: 0.76 },
   { path: "/guides/reduce-minecraft-server-lag", changeFrequency: "monthly", priority: 0.76 },

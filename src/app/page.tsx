@@ -76,6 +76,11 @@ export default async function Home() {
   const learnCards = isEs
     ? [
         {
+          href: "/minecraft-server-hosting",
+          title: "Hosting profesional para servidores de Minecraft",
+          description: "Página principal para entender recursos, estabilidad, backups y protección si quieres un servidor serio y escalable.",
+        },
+        {
           href: "/free-minecraft-hosting",
           title: "Hosting gratis de Minecraft",
           description: "Qué puedes esperar de un plan gratuito, cuándo se te queda corto y cómo escalar sin migraciones traumáticas.",
@@ -92,6 +97,11 @@ export default async function Home() {
         },
       ]
     : [
+        {
+          href: "/minecraft-server-hosting",
+          title: "Professional Minecraft server hosting",
+          description: "Understand the infrastructure, backups, performance, and support decisions behind a serious hosting setup.",
+        },
         {
           href: "/free-minecraft-hosting",
           title: "Free Minecraft hosting",
@@ -318,6 +328,38 @@ export default async function Home() {
                 </Link>
               ))}
             </div>
+          </div>
+        </Container>
+      </section>
+
+      <section className="border-t border-[color:var(--border)]">
+        <Container className="py-14 sm:py-16">
+          <div className="mb-6 max-w-3xl">
+            <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
+              {isEs ? "Explora tipos de hosting y guías clave" : "Explore hosting types and essential guides"}
+            </h2>
+            <p className="mt-3 text-sm leading-7 text-[color:var(--muted)] sm:text-base">
+              {isEs
+                ? "Estas páginas ayudan a cubrir búsquedas más específicas relacionadas con Forge, Fabric, Paper, Europa y dudas habituales sobre RAM, backups y elección de proveedor."
+                : "These pages target more specific searches around Forge, Fabric, Paper, Europe, and common questions about RAM, backups, and provider selection."}
+            </p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {[
+              { href: "/minecraft-hosting-europe", title: isEs ? "Minecraft hosting en Europa" : "Minecraft hosting in Europe" },
+              { href: "/forge-server-hosting", title: isEs ? "Hosting para servidores Forge" : "Forge server hosting" },
+              { href: "/fabric-server-hosting", title: isEs ? "Hosting para servidores Fabric" : "Fabric server hosting" },
+              { href: "/paper-server-hosting", title: isEs ? "Hosting para Paper" : "Paper server hosting" },
+              { href: "/blog/how-much-ram-for-minecraft-server", title: isEs ? "Cuánta RAM necesita un servidor" : "How much RAM a server needs" },
+              { href: "/blog/forge-vs-fabric-for-server-owners", title: isEs ? "Forge vs Fabric" : "Forge vs Fabric" },
+            ].map((item) => (
+              <Link key={item.href} href={item.href}>
+                <Card className="p-5 transition hover:border-[color:var(--accent)]/60 hover:bg-[color:var(--surface2)]">
+                  <div className="text-sm font-extrabold text-[color:var(--text)]">{item.title}</div>
+                </Card>
+              </Link>
+            ))}
           </div>
         </Container>
       </section>

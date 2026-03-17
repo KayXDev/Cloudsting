@@ -110,6 +110,12 @@ export default async function PricingPage() {
   const comparisonBlocks = isEs
     ? [
         {
+          title: "Hosting general para Minecraft",
+          body: "Si todavía estás comparando proveedores, esta landing resume qué mirar en rendimiento, panel, escalado y recuperación antes de elegir un plan.",
+          href: "/minecraft-server-hosting",
+          cta: "Ver landing principal",
+        },
+        {
           title: "Hosting gratis para empezar",
           body: "Si estás montando una comunidad pequeña o quieres validar una idea, el hosting gratis sirve para aprender, testear plugins y lanzar un mundo privado. Cuando ya necesitas más estabilidad o jugadores concurrentes, toca pasar a un plan con más RAM, CPU y mejores backups.",
           href: "/free-minecraft-hosting",
@@ -129,6 +135,12 @@ export default async function PricingPage() {
         },
       ]
     : [
+        {
+          title: "General Minecraft hosting",
+          body: "If you are still comparing providers, this landing page summarizes the main things to evaluate around performance, control panel quality, scaling, and recovery.",
+          href: "/minecraft-server-hosting",
+          cta: "View main landing",
+        },
         {
           title: "Free hosting to get started",
           body: "If you are building a small community or testing an idea, free hosting is enough for early experiments, plugins, and private worlds. Once you need stronger stability or more concurrent players, you need more RAM, CPU, and recovery options.",
@@ -193,7 +205,7 @@ export default async function PricingPage() {
 
         <PricingClientGrid plans={plans} canCheckout={dbConfigured && hasSession} />
 
-        <div className="mt-12 grid gap-4 lg:grid-cols-3">
+        <div className="mt-12 grid gap-4 lg:grid-cols-4">
           {comparisonBlocks.map((block) => (
             <Card key={block.href} className="p-6">
               <h2 className="text-lg font-extrabold text-[color:var(--text)]">{block.title}</h2>
