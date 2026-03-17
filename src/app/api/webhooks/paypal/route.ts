@@ -4,6 +4,7 @@ import { verifyPayPalWebhook } from "@/server/payments/paypal";
 import { ensurePaymenterServiceForOrder } from "@/server/billing/paymenter";
 import { provisionMinecraftServer } from "@/server/provisioning";
 import { sendEmail } from "@/server/email/smtp";
+import { completeWalletTopUpByProviderRef } from "@/server/wallet";
 
 export async function POST(req: Request) {
   const rawBody = await req.text();
@@ -17,6 +18,12 @@ export async function POST(req: Request) {
     if (event.event_type === "PAYMENT.CAPTURE.COMPLETED") {
       const providerRef = event.resource?.supplementary_data?.related_ids?.order_id;
       if (!providerRef) return jsonOk({ ignored: true });
+
+      const walletTransaction = await prisma.walletTransaction.findUnique({ where: { providerRef } });
+      if (walletTransaction) {
+        await completeWalletTopUpByProviderRef(providerRef);
+        return jsonOk({ received: true, walletTopUp: true });
+      }
 
       const order = await prisma.order.findUnique({ where: { providerRef } });
       if (!order) return jsonOk({ ignored: true });

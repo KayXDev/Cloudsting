@@ -27,7 +27,7 @@ export function Navbar() {
     { href: "/community/search", label: t(lang, "nav.search") },
   ];
 
-  const [user, setUser] = useState<{ id: string; email: string; role: "USER" | "ADMIN"; name?: string | null } | null>(null);
+  const [user, setUser] = useState<{ id: string; email: string; role: "USER" | "ADMIN"; name?: string | null; walletBalanceCents: number } | null>(null);
   const [userServers, setUserServers] = useState<Array<{ id: string; name: string; status: string }>>([]);
   const [communityOpen, setCommunityOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -37,19 +37,59 @@ export function Navbar() {
   const [serversOpen, setServersOpen] = useState(false);
   const [languageQuery, setLanguageQuery] = useState("");
 
+  async function fetchWithRetry(url: string, init?: RequestInit) {
+    let lastResponse: Response | null = null;
+
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const response = await fetch(url, init);
+      lastResponse = response;
+
+      if (response.ok || (response.status !== 404 && response.status < 500)) {
+        return response;
+      }
+
+      if (attempt < 2) {
+        await new Promise((resolve) => window.setTimeout(resolve, 250 * (attempt + 1)));
+      }
+    }
+
+    if (!lastResponse) {
+      throw new Error(`Request failed without response: ${url}`);
+    }
+
+    return lastResponse;
+  }
+
   useEffect(() => {
     let cancelled = false;
 
     async function load() {
       try {
-        const res = await fetch("/api/auth/me", { credentials: "same-origin" });
+        const res = await fetchWithRetry("/api/auth/me", { credentials: "same-origin" });
+
+        if (!res.ok) {
+          if (!cancelled && (res.status === 401 || res.status === 403)) {
+            setUser(null);
+            setUserServers([]);
+          }
+          return;
+        }
+
         const json = await res.json().catch(() => null);
-        if (!cancelled && res.ok && json?.ok && json?.data?.id) {
+        if (!cancelled && json?.ok && json?.data?.id) {
           setUser(json.data);
 
-          const serversRes = await fetch("/api/servers", { credentials: "same-origin" });
+          const serversRes = await fetchWithRetry("/api/servers", { credentials: "same-origin" });
+
+          if (!serversRes.ok) {
+            if (!cancelled && (serversRes.status === 401 || serversRes.status === 403)) {
+              setUserServers([]);
+            }
+            return;
+          }
+
           const serversJson = await serversRes.json().catch(() => null);
-          if (!cancelled && serversRes.ok && serversJson?.ok && Array.isArray(serversJson?.data)) {
+          if (!cancelled && serversJson?.ok && Array.isArray(serversJson?.data)) {
             setUserServers(
               serversJson.data.map((s: any) => ({
                 id: String(s.id),
@@ -65,10 +105,7 @@ export function Navbar() {
           setUserServers([]);
         }
       } catch {
-        if (!cancelled) {
-          setUser(null);
-          setUserServers([]);
-        }
+        return;
       }
     }
 
@@ -126,6 +163,11 @@ export function Navbar() {
     const q = languageQuery.trim().toLowerCase();
     if (!q) return true;
     return l.native.toLowerCase().includes(q) || l.local.toLowerCase().includes(q);
+  });
+
+  const moneyFmt = new Intl.NumberFormat(lang === "es" ? "es-ES" : "en-US", {
+    style: "currency",
+    currency: "USD",
   });
 
   return (
@@ -303,6 +345,10 @@ export function Navbar() {
 
               {walletOpen ? (
                 <div className="absolute left-0 top-full z-[70] mt-2 w-56 rounded-xl border border-[#2a2a2a] bg-[#111111] p-2 shadow-[0_16px_30px_rgba(0,0,0,0.42)]">
+                  <div className="rounded-lg border border-[#232323] px-3 py-2">
+                    <div className="text-[11px] font-bold uppercase tracking-[0.08em] text-gray-500">{t(lang, "wallet.cards.balance")}</div>
+                    <div className="mt-1 text-sm font-extrabold text-white">{moneyFmt.format((user.walletBalanceCents ?? 0) / 100)}</div>
+                  </div>
                   <Link href="/wallet" className="block rounded-lg px-3 py-2 text-sm font-semibold text-gray-200 hover:bg-[#1a1a1a]">
                     {t(lang, "nav.walletSummary")}
                   </Link>
@@ -482,6 +528,7 @@ export function Navbar() {
                 <div className="rounded-xl border border-[#2a2a2a] bg-[#101010] p-3">
                   <div className="text-sm font-bold text-white">{(user.name && user.name.trim()) ? user.name : user.email.split("@")[0]}</div>
                   <div className="mt-1 text-xs text-gray-500">{user.email}</div>
+                  <div className="mt-2 text-xs font-semibold text-[#1AD76F]">{t(lang, "wallet.cards.balance")}: {moneyFmt.format((user.walletBalanceCents ?? 0) / 100)}</div>
                   <div className="mt-3 grid gap-2 sm:grid-cols-2">
                     <Link
                       href="/profile"

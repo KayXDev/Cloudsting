@@ -2,8 +2,8 @@
 
 ## 2026-03-17
 
-- Expanded the Minecraft SEO cluster with new landing pages for Minecraft server hosting, European hosting, Forge, Fabric, and Paper.
-- Added a blog hub plus new articles covering RAM sizing, Forge vs Fabric, and Minecraft server backups.
-- Strengthened internal linking from home, pricing, footer, and sitemap to connect transactional and informational pages.
-- Updated robots and sitemap so the new public routes are discoverable while private routes remain constrained.
-- Validated the full production build after the expanded SEO content rollout.
+- Added a persistent wallet system with balance tracking, wallet transaction history, Stripe and PayPal top-ups, and wallet-funded hosting checkout.
+- Extended checkout, wallet, and navbar flows so users can add funds, see available balance, and pay hosting plans directly from wallet credit.
+- Hardened wallet and session handling against legacy null transaction fields and transient development-time API 404s in the navbar.
+- Restored the dashboard to a card-based server list and added direct panel access buttons with a slimmer multi-server friendly layout.
+- Validated the production build after the wallet, dashboard, and auth resilience changes.

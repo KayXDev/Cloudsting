@@ -5,6 +5,7 @@ import { jsonError, jsonOk } from "@/server/http";
 import { ensurePaymenterServiceForOrder } from "@/server/billing/paymenter";
 import { provisionMinecraftServer } from "@/server/provisioning";
 import { sendEmail } from "@/server/email/smtp";
+import { completeWalletTopUpByProviderRef } from "@/server/wallet";
 
 export async function POST(req: Request) {
   try {
@@ -25,6 +26,12 @@ export async function POST(req: Request) {
       const session = event.data.object as Stripe.Checkout.Session;
 
       const providerRef = session.id;
+      const walletTransaction = await prisma.walletTransaction.findUnique({ where: { providerRef } });
+      if (walletTransaction) {
+        await completeWalletTopUpByProviderRef(providerRef);
+        return jsonOk({ received: true, walletTopUp: true });
+      }
+
       const order = await prisma.order.findUnique({ where: { providerRef } });
       if (!order) return jsonOk({ ignored: true });
 

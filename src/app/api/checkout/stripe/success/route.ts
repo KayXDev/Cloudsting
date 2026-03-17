@@ -3,6 +3,7 @@ import { prisma } from "@/server/db";
 import { env } from "@/server/env";
 import { ensurePaymenterServiceForOrder } from "@/server/billing/paymenter";
 import { provisionMinecraftServer } from "@/server/provisioning";
+import { completeWalletTopUpByProviderRef } from "@/server/wallet";
 
 function redirectResponse(url: string) {
   return new Response(null, {
@@ -36,6 +37,12 @@ export async function GET(req: Request) {
     }
 
     const providerRef = session.id;
+    const walletTransaction = await prisma.walletTransaction.findUnique({ where: { providerRef } });
+    if (walletTransaction) {
+      await completeWalletTopUpByProviderRef(providerRef);
+      return redirectResponse(`${env.APP_URL}/wallet?funded=1`);
+    }
+
     const order = await prisma.order.findUnique({
       where: { providerRef },
       include: { user: true, plan: true },

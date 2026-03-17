@@ -28,11 +28,30 @@ export default async function WalletPage() {
     redirect("/login");
   }
 
+  const dbUser = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { walletBalanceCents: true },
+  });
+
   const orders = await prisma.order.findMany({
     where: { userId: user.id },
     select: { id: true, status: true, amountCents: true, createdAt: true },
     orderBy: { createdAt: "desc" },
     take: 100,
+  });
+
+  const walletTransactions = await prisma.walletTransaction.findMany({
+    where: { userId: user.id },
+    orderBy: { createdAt: "desc" },
+    take: 10,
+    select: {
+      id: true,
+      kind: true,
+      provider: true,
+      status: true,
+      amountCents: true,
+      createdAt: true,
+    },
   });
 
   const paidOrders = orders.filter((order) => order.status === "PAID");
@@ -52,6 +71,10 @@ export default async function WalletPage() {
           <p className="mt-2 text-sm text-[color:var(--muted)]">{t(lang, "wallet.subtitle")}</p>
 
           <div className="mt-8 grid gap-4 md:grid-cols-3">
+            <Card className="p-6">
+              <div className="text-xs uppercase tracking-[0.08em] text-[color:var(--muted)]">{t(lang, "wallet.cards.balance")}</div>
+              <div className="mt-2 text-3xl font-extrabold text-[color:var(--text)]">{moneyFmt.format((dbUser?.walletBalanceCents ?? 0) / 100)}</div>
+            </Card>
             <Card className="p-6">
               <div className="text-xs uppercase tracking-[0.08em] text-[color:var(--muted)]">{t(lang, "wallet.cards.totalPaid")}</div>
               <div className="mt-2 text-3xl font-extrabold text-[color:var(--text)]">{moneyFmt.format(totalPaidCents / 100)}</div>
@@ -83,6 +106,41 @@ export default async function WalletPage() {
             <Card className="p-6">
               <div className="text-sm font-extrabold">{t(lang, "wallet.note.title")}</div>
               <div className="mt-2 text-sm text-[color:var(--muted)]">{t(lang, "wallet.note.body")}</div>
+            </Card>
+          </div>
+
+          <div className="mt-8">
+            <Card className="p-6">
+              <div className="text-sm font-extrabold">{t(lang, "wallet.history.title")}</div>
+              <div className="mt-2 text-sm text-[color:var(--muted)]">{t(lang, "wallet.history.subtitle")}</div>
+              <div className="mt-6 grid gap-3">
+                {walletTransactions.length === 0 ? (
+                  <div className="text-sm text-[color:var(--muted)]">{t(lang, "wallet.history.empty")}</div>
+                ) : (
+                  walletTransactions.map((item) => {
+                    const isCredit = item.kind !== "DEBIT";
+                    const providerLabel = item.provider ?? "-";
+                    const statusLabel = item.status ?? "-";
+
+                    return (
+                      <div key={item.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[color:var(--border)] px-4 py-3">
+                        <div>
+                          <div className="text-sm font-bold text-[color:var(--text)]">
+                            {isCredit ? t(lang, "wallet.history.credit") : t(lang, "wallet.history.debit")}
+                          </div>
+                          <div className="text-xs text-[color:var(--muted)]">{providerLabel} · {statusLabel}</div>
+                        </div>
+                        <div className="text-right">
+                          <div className={`text-sm font-extrabold ${isCredit ? "text-[color:var(--accent)]" : "text-[color:var(--text)]"}`}>
+                            {isCredit ? "+" : "-"}{moneyFmt.format(item.amountCents / 100)}
+                          </div>
+                          <div className="text-xs text-[color:var(--muted)]">{new Date(item.createdAt).toLocaleString()}</div>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
             </Card>
           </div>
         </div>

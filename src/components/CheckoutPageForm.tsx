@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
@@ -20,6 +21,7 @@ export function CheckoutPageForm(props: {
   planSlug: string;
   planName: string;
   priceMonthlyCents: number;
+  availableWalletCents: number;
 }) {
   const { lang } = useLanguage();
   const [serverName, setServerName] = useState(() => t(lang, "checkout.defaultServerName"));
@@ -32,7 +34,7 @@ export function CheckoutPageForm(props: {
   }>(null);
   const [versionsError, setVersionsError] = useState<string | null>(null);
   const [interval, setInterval] = useState<BillingInterval>("month");
-  const [loading, setLoading] = useState<null | "stripe" | "paypal">(null);
+  const [loading, setLoading] = useState<null | "stripe" | "paypal" | "wallet">(null);
   const [error, setError] = useState<string | null>(null);
 
   const subtotalCents = useMemo(() => {
@@ -42,6 +44,8 @@ export function CheckoutPageForm(props: {
   const priceCents = useMemo(() => {
     return totalCentsForInterval(props.priceMonthlyCents, interval);
   }, [props.priceMonthlyCents, interval]);
+
+  const hasEnoughWalletBalance = props.availableWalletCents >= priceCents;
 
   useEffect(() => {
     let cancelled = false;
@@ -79,7 +83,7 @@ export function CheckoutPageForm(props: {
     };
   }, [lang]);
 
-  async function startCheckout(provider: "stripe" | "paypal") {
+  async function startCheckout(provider: "stripe" | "paypal" | "wallet") {
     setLoading(provider);
     setError(null);
 
@@ -96,7 +100,7 @@ export function CheckoutPageForm(props: {
         throw new Error(json?.error?.message ?? t(lang, "checkout.failed"));
       }
 
-      const url = provider === "stripe" ? json.data.url : json.data.approveUrl;
+      const url = provider === "paypal" ? json.data.approveUrl : json.data.url;
       if (!url) throw new Error(t(lang, "checkout.missingRedirectUrl"));
       window.location.href = url;
     } catch (e: any) {
@@ -132,6 +136,21 @@ export function CheckoutPageForm(props: {
             </span>
           )}
         </div>
+      </div>
+
+      <div className="rounded-xl border border-[color:var(--border)] bg-[color:var(--surface2)] p-4">
+        <div className="text-xs font-semibold text-[color:var(--muted)]">{t(lang, "checkout.walletBalance")}</div>
+        <div className="mt-1 text-lg font-extrabold">{formatUsd(props.availableWalletCents)}</div>
+        <div className="mt-2 text-xs text-[color:var(--muted)]">
+          {hasEnoughWalletBalance
+            ? t(lang, "checkout.walletEnough")
+            : t(lang, "checkout.walletMissing").replace("{amount}", formatUsd(priceCents - props.availableWalletCents))}
+        </div>
+        {!hasEnoughWalletBalance ? (
+          <Link href="/wallet/add-funds" className="mt-3 inline-flex text-sm font-bold text-[color:var(--accent)]">
+            {t(lang, "nav.addFunds")}
+          </Link>
+        ) : null}
       </div>
 
       <div>
@@ -215,6 +234,9 @@ export function CheckoutPageForm(props: {
       </div>
 
       <div className="grid gap-2">
+        <Button onClick={() => startCheckout("wallet")} disabled={loading !== null || !hasEnoughWalletBalance} variant="primary">
+          {loading === "wallet" ? t(lang, "checkout.redirecting") : t(lang, "checkout.payWallet")}
+        </Button>
         <Button onClick={() => startCheckout("stripe")} disabled={loading !== null} variant="primary">
           {loading === "stripe" ? t(lang, "checkout.redirecting") : t(lang, "checkout.payStripe")}
         </Button>

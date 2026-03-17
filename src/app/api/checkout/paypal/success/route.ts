@@ -4,6 +4,7 @@ import { jsonError } from "@/server/http";
 import { ensurePaymenterServiceForOrder } from "@/server/billing/paymenter";
 import { getPayPalAccessToken } from "@/server/payments/paypal";
 import { provisionMinecraftServer } from "@/server/provisioning";
+import { completeWalletTopUpByProviderRef } from "@/server/wallet";
 
 function redirectResponse(url: string) {
   return new Response(null, {
@@ -29,6 +30,30 @@ export async function GET(req: Request) {
   }
 
   try {
+    const walletTransaction = await prisma.walletTransaction.findUnique({ where: { providerRef: token } });
+    if (walletTransaction) {
+      if (walletTransaction.status === "COMPLETED") {
+        return redirectResponse(`${env.APP_URL}/wallet?funded=1`);
+      }
+
+      const accessToken = await getPayPalAccessToken();
+      const captureRes = await fetch(`${getPayPalBaseUrl()}/v2/checkout/orders/${token}/capture`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const captureBody = await captureRes.json().catch(() => ({}));
+      if (!captureRes.ok) {
+        return jsonError("PayPal capture failed", 400, captureBody);
+      }
+
+      await completeWalletTopUpByProviderRef(token);
+      return redirectResponse(`${env.APP_URL}/wallet?funded=1`);
+    }
+
     const order = await prisma.order.findUnique({
       where: { providerRef: token },
       include: { user: true, plan: true },

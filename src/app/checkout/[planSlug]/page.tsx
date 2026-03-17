@@ -30,6 +30,11 @@ export default async function CheckoutPage({ params }: { params: Promise<{ planS
   const plan = await prisma.plan.findUnique({ where: { slug: planSlug } });
   if (!plan) redirect("/pricing");
 
+  const dbUser = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { walletBalanceCents: true },
+  });
+
   return (
     <main className="mx-auto w-full max-w-5xl px-6 py-14">
       <div className="grid gap-3">
@@ -52,7 +57,12 @@ export default async function CheckoutPage({ params }: { params: Promise<{ planS
           </ul>
         </div>
 
-        <CheckoutPageForm planSlug={plan.slug} planName={plan.name} priceMonthlyCents={plan.priceMonthlyCents} />
+        <CheckoutPageForm
+          planSlug={plan.slug}
+          planName={plan.name}
+          priceMonthlyCents={plan.priceMonthlyCents}
+          availableWalletCents={dbUser?.walletBalanceCents ?? 0}
+        />
       </div>
     </main>
   );

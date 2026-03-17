@@ -3,9 +3,11 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Card } from "@/components/Card";
 import { Container } from "@/components/Container";
+import { WalletAddFundsForm } from "@/components/WalletAddFundsForm";
 import { createMetadata } from "@/lib/seo";
 import { t } from "@/lib/i18n";
 import { requireUser } from "@/server/auth/session";
+import { prisma } from "@/server/db";
 import { getLanguageFromCookies } from "@/server/i18n";
 
 export function generateMetadata(): Metadata {
@@ -19,12 +21,18 @@ export function generateMetadata(): Metadata {
 
 export default async function WalletAddFundsPage() {
   const lang = getLanguageFromCookies();
+  let user: Awaited<ReturnType<typeof requireUser>>;
 
   try {
-    await requireUser();
+    user = await requireUser();
   } catch {
     redirect("/login");
   }
+
+  const dbUser = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { walletBalanceCents: true },
+  });
 
   return (
     <main>
@@ -37,8 +45,15 @@ export default async function WalletAddFundsPage() {
             <Card className="p-6">
               <div className="text-sm font-extrabold">{t(lang, "wallet.addFunds.methodsTitle")}</div>
               <div className="mt-2 text-sm text-[color:var(--muted)]">{t(lang, "wallet.addFunds.methodsBody")}</div>
+              <div className="mt-4 text-sm font-semibold text-[color:var(--text)]">
+                {t(lang, "wallet.cards.balance")}: {new Intl.NumberFormat(lang === "es" ? "es-ES" : "en-US", {
+                  style: "currency",
+                  currency: process.env.PAYMENTER_CURRENCY_CODE || "USD",
+                }).format((dbUser?.walletBalanceCents ?? 0) / 100)}
+              </div>
+              <WalletAddFundsForm />
               <div className="mt-6 flex flex-wrap gap-3">
-                <Link href="/pricing" className="rounded-xl bg-[color:var(--accent)] px-4 py-2 text-sm font-bold text-black">
+                <Link href="/pricing" className="rounded-xl border border-[color:var(--border)] px-4 py-2 text-sm font-bold hover:bg-[color:var(--surface2)]">
                   {t(lang, "wallet.addFunds.ctaPrimary")}
                 </Link>
                 <Link href="/support" className="rounded-xl border border-[color:var(--border)] px-4 py-2 text-sm font-bold hover:bg-[color:var(--surface2)]">

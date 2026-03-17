@@ -15,6 +15,24 @@ enum UserRole {
 enum OrderProvider {
   STRIPE
   PAYPAL
+  WALLET
+}
+
+enum WalletTransactionProvider {
+  STRIPE
+  PAYPAL
+  WALLET
+}
+
+enum WalletTransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum WalletTransactionKind {
+  CREDIT
+  DEBIT
 }
 
 enum OrderStatus {
@@ -46,6 +64,7 @@ model User {
   name            String?
   role            UserRole       @default(USER)
   pterodactylUserId Int?
+  walletBalanceCents Int         @default(0)
 
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
@@ -55,6 +74,7 @@ model User {
   refreshTokens   RefreshToken[]
   supportTickets  SupportTicket[]
   supportMessages SupportTicketMessage[] @relation("SupportTicketMessageAuthor")
+  walletTransactions WalletTransaction[]
 
   @@index([role])
 }
@@ -190,4 +210,22 @@ model SupportTicketMessage {
 
   @@index([ticketId, createdAt])
   @@index([authorId])
+}
+
+model WalletTransaction {
+  id          String                    @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String                    @db.ObjectId
+  user        User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider    WalletTransactionProvider?
+  providerRef String                    @unique
+  kind        WalletTransactionKind?
+  status      WalletTransactionStatus?  @default(PENDING)
+  amountCents Int
+  createdAt   DateTime                  @default(now())
+  completedAt DateTime?
+  metadata    Json?
+
+  @@index([userId, createdAt])
+  @@index([status])
+  @@index([kind])
 }
