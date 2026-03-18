@@ -202,6 +202,7 @@ model Order {
 
   createdAt   DateTime      @default(now())
   paidAt      DateTime?
+  receiptEmailSentAt DateTime?
   metadata    Json?
 
   server      Server?

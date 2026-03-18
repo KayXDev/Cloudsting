@@ -119,6 +119,9 @@ export async function createWalletDebitForOrder(input: {
       },
       select: {
         id: true,
+        provider: true,
+        amountCents: true,
+        paidAt: true,
       },
     });
 

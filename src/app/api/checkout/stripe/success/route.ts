@@ -3,6 +3,7 @@ import { prisma } from "@/server/db";
 import { env } from "@/server/env";
 import { ensurePaymenterServiceForOrder } from "@/server/billing/paymenter";
 import { provisionMinecraftServer } from "@/server/provisioning";
+import { sendOrderReceiptEmail } from "@/server/email/receipts";
 import { completeWalletTopUpByProviderRef } from "@/server/wallet";
 
 function redirectResponse(url: string) {
@@ -76,6 +77,12 @@ export async function GET(req: Request) {
         vanillaVersion,
         orderId: order.id,
       });
+    }
+
+    try {
+      await sendOrderReceiptEmail(order.id);
+    } catch (err) {
+      console.error("Receipt email failed (stripe success)", err);
     }
 
     // Best-effort Paymenter sync (retryable if the user revisits the success URL).

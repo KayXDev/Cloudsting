@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Container } from "@/components/Container";
+import { siteConfig } from "@/lib/seo";
 import { getLanguageFromCookies } from "@/server/i18n";
 import { t } from "@/lib/i18n";
 
@@ -166,6 +167,12 @@ export function Footer() {
 
         <div className="mt-8 text-center text-xs text-[color:var(--muted)]">
           © {new Date().getFullYear()} Cloudsting. {t(lang, "footer.rights")}
+        </div>
+
+        <div className="mt-2 text-center text-xs text-[color:var(--muted)]">
+          <a href={`mailto:${siteConfig.supportEmail}`} className="transition hover:text-[color:var(--text)]">
+            {siteConfig.supportEmail}
+          </a>
         </div>
       </Container>
     </footer>

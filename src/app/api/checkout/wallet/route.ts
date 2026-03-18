@@ -6,6 +6,7 @@ import { requireUser } from "@/server/auth/session";
 import { checkStockForPlanRam } from "@/server/stock";
 import { provisionMinecraftServer } from "@/server/provisioning";
 import { ensurePaymenterServiceForOrder } from "@/server/billing/paymenter";
+import { sendOrderReceiptEmail } from "@/server/email/receipts";
 import { totalCentsForInterval, type BillingInterval } from "@/lib/billingTerms";
 import { createWalletDebitForOrder, refundWalletOrderDebit } from "@/server/wallet";
 
@@ -66,6 +67,12 @@ export async function POST(req: Request) {
         });
       } catch (err) {
         console.error("Paymenter sync failed (wallet checkout)", err);
+      }
+
+      try {
+        await sendOrderReceiptEmail(debit.order.id);
+      } catch (err) {
+        console.error("Receipt email failed (wallet checkout)", err);
       }
 
       return jsonOk({ url: `${env.APP_URL}/dashboard?paid=1&wallet=1` });

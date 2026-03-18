@@ -7,6 +7,7 @@ import { getPayPalAccessToken } from "@/server/payments/paypal";
 import { checkStockForPlanRam } from "@/server/stock";
 import { provisionMinecraftServer } from "@/server/provisioning";
 import { ensurePaymenterServiceForOrder } from "@/server/billing/paymenter";
+import { sendOrderReceiptEmail } from "@/server/email/receipts";
 import { totalCentsForInterval, type BillingInterval } from "@/lib/billingTerms";
 
 const schema = z.object({
@@ -82,6 +83,12 @@ export async function POST(req: Request) {
           });
         } catch (err) {
           console.error("Paymenter sync failed (paypal free)", err);
+        }
+
+        try {
+          await sendOrderReceiptEmail(order.id);
+        } catch (err) {
+          console.error("Receipt email failed (paypal free)", err);
         }
 
         return jsonOk({ id: order.id, approveUrl: `${env.APP_URL}/dashboard?paid=1&free=1` });

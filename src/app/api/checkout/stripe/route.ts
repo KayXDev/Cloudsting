@@ -7,6 +7,7 @@ import { getStripe } from "@/server/payments/stripe";
 import { checkStockForPlanRam } from "@/server/stock";
 import { provisionMinecraftServer } from "@/server/provisioning";
 import { ensurePaymenterServiceForOrder } from "@/server/billing/paymenter";
+import { sendOrderReceiptEmail } from "@/server/email/receipts";
 import { stripeRecurringForInterval, totalCentsForInterval, type BillingInterval } from "@/lib/billingTerms";
 
 const schema = z.object({
@@ -77,6 +78,12 @@ export async function POST(req: Request) {
           });
         } catch (err) {
           console.error("Paymenter sync failed (stripe free)", err);
+        }
+
+        try {
+          await sendOrderReceiptEmail(order.id);
+        } catch (err) {
+          console.error("Receipt email failed (stripe free)", err);
         }
 
         return jsonOk({ url: `${env.APP_URL}/dashboard?paid=1&free=1` });

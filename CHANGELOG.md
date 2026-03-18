@@ -2,9 +2,7 @@
 
 ## 2026-03-18
 
-- Added Google sign-in and sign-up, including backend token verification, account linking, env support, and auth UI integration.
-- Added shopping cart flows for plan selection, cart persistence, checkout prefill, and navbar cart preview with inline item removal.
-- Built public hosting reviews and a community forum with categories, thread creation, replies, and admin moderation tools.
-- Redesigned the profile page, moved language selection to a floating global switcher, and refined navbar dropdowns, badges, and cart placement.
-- Updated footer payment method logos, support ticket filtering, admin navigation, docs, and related i18n content.
+- Added automatic purchase receipt emails for Stripe, PayPal, wallet, and free-plan checkouts with idempotent delivery control.
+- Added an order-level receipt tracking field and a reusable email receipt renderer plus centralized sending helper.
+- Updated the footer and site config to show the new support email `support@cloudsting.eu`.
 - Validated the current production build successfully before pushing.

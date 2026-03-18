@@ -32,7 +32,7 @@ export const siteConfig = {
     "cloudsting",
   ],
   discordUrl: "https://discord.gg/wrld999",
-  supportEmail: "support@cloudsting.com",
+  supportEmail: "support@cloudsting.eu",
   ogImagePath: "/opengraph-image",
   twitterImagePath: "/twitter-image",
 };

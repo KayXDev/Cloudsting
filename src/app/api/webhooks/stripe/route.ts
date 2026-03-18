@@ -4,7 +4,7 @@ import { env } from "@/server/env";
 import { jsonError, jsonOk } from "@/server/http";
 import { ensurePaymenterServiceForOrder } from "@/server/billing/paymenter";
 import { provisionMinecraftServer } from "@/server/provisioning";
-import { sendEmail } from "@/server/email/smtp";
+import { sendOrderReceiptEmail } from "@/server/email/receipts";
 import { completeWalletTopUpByProviderRef } from "@/server/wallet";
 
 export async function POST(req: Request) {
@@ -58,19 +58,12 @@ export async function POST(req: Request) {
           orderId: order.id,
         });
 
-        // Best-effort email.
-        try {
-          const user = await prisma.user.findUnique({ where: { id: order.userId } });
-          if (user) {
-            await sendEmail({
-              to: user.email,
-              subject: "Cloudsting — Server Provisioned",
-              text: `Your server \"${serverName}\" is being provisioned. You can manage it in your dashboard.`,
-            });
-          }
-        } catch {
-          // ignore
-        }
+      }
+
+      try {
+        await sendOrderReceiptEmail(order.id);
+      } catch (err) {
+        console.error("Receipt email failed (stripe webhook)", err);
       }
 
       // Best-effort Paymenter sync (retryable if the webhook is retried).
