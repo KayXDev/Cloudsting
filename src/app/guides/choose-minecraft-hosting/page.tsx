@@ -1,7 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { Card } from "@/components/Card";
-import { Container } from "@/components/Container";
+import { GuideArticleShell } from "@/components/GuideArticleShell";
 import { absoluteUrl, createMetadata } from "@/lib/seo";
 import { getLanguageFromCookies } from "@/server/i18n";
 
@@ -72,42 +71,31 @@ export default function ChooseMinecraftHostingGuidePage() {
   };
 
   return (
-    <main>
+    <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
-      <Container className="py-16">
-        <div className="mx-auto max-w-4xl">
-          <div className="text-sm font-semibold uppercase tracking-[0.14em] text-[color:var(--accent2)]">Guides</div>
-          <h1 className="mt-3 text-4xl font-extrabold tracking-tight sm:text-5xl">
-            {isEs ? "Cómo elegir un hosting de Minecraft" : "How to choose Minecraft hosting"}
-          </h1>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-[color:var(--muted)] sm:text-base">
-            {isEs
-              ? "Esta guía está pensada para usuarios que comparan proveedores y quieren separar el marketing superficial de las señales que realmente afectan rendimiento, estabilidad y escalabilidad."
-              : "This guide is designed for buyers comparing providers and trying to separate shallow marketing claims from the signals that actually affect performance, stability, and growth."}
-          </p>
-
-          <div className="mt-8 grid gap-4">
-            {sections.map((section) => (
-              <Card key={section.title} className="p-6 sm:p-8">
-                <h2 className="text-2xl font-extrabold tracking-tight">{section.title}</h2>
-                <p className="mt-4 text-sm leading-8 text-[color:var(--muted)] sm:text-base">{section.body}</p>
-              </Card>
-            ))}
-          </div>
-
-          <Card className="mt-8 p-6 sm:p-8">
-            <h2 className="text-2xl font-extrabold tracking-tight">{isEs ? "Siguiente lectura recomendada" : "Recommended next reading"}</h2>
-            <div className="mt-5 grid gap-3 md:grid-cols-2">
-              <Link href="/modded-minecraft-hosting" className="text-sm font-bold text-[color:var(--accent)]">
-                {isEs ? "Ver hosting para servidores modded" : "See modded Minecraft hosting"}
-              </Link>
-              <Link href="/guides/reduce-minecraft-server-lag" className="text-sm font-bold text-[color:var(--accent)]">
-                {isEs ? "Leer guía para reducir lag" : "Read the server lag guide"}
-              </Link>
-            </div>
-          </Card>
-        </div>
-      </Container>
-    </main>
+      <GuideArticleShell
+        slug="choose-minecraft-hosting"
+        lang={lang}
+        title={isEs ? "Como elegir un hosting de Minecraft" : "How to choose Minecraft hosting"}
+        intro={isEs
+          ? "Esta guia esta pensada para usuarios que comparan proveedores y quieren separar el marketing superficial de las senales que realmente afectan rendimiento, estabilidad y escalabilidad."
+          : "This guide is for buyers comparing providers and trying to separate shallow marketing from the signals that actually affect performance, stability, and future growth."}
+        sections={sections}
+        relatedLinks={[
+          {
+            href: "/modded-minecraft-hosting",
+            label: isEs ? "Ver hosting para servidores modded" : "See modded Minecraft hosting",
+          },
+          {
+            href: "/guides/reduce-minecraft-server-lag",
+            label: isEs ? "Leer guia para reducir lag" : "Read the server lag guide",
+          },
+          {
+            href: "/pricing",
+            label: isEs ? "Comparar planes de hosting" : "Compare hosting plans",
+          },
+        ]}
+      />
+    </>
   );
 }

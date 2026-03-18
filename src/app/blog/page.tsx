@@ -21,6 +21,11 @@ export default function BlogPage() {
   const posts = isEs
     ? [
         {
+          href: "/blog/how-to-create-a-minecraft-server",
+          title: "Como crear un servidor de Minecraft",
+          description: "Articulo base para usuarios que todavia estan montando su primer servidor y necesitan una ruta clara.",
+        },
+        {
           href: "/blog/how-much-ram-for-minecraft-server",
           title: "Cuánta RAM necesita un servidor de Minecraft",
           description: "Guía práctica para dimensionar memoria según jugadores, software, plugins y modpacks.",
@@ -37,6 +42,11 @@ export default function BlogPage() {
         },
       ]
     : [
+        {
+          href: "/blog/how-to-create-a-minecraft-server",
+          title: "How to create a Minecraft server",
+          description: "A foundational article for users still setting up their first server and comparing early decisions.",
+        },
         {
           href: "/blog/how-much-ram-for-minecraft-server",
           title: "How much RAM does a Minecraft server need",
@@ -65,7 +75,7 @@ export default function BlogPage() {
               : "This blog complements the commercial landing pages with articles that answer specific questions before purchase. That informational layer improves SEO and also builds trust while visitors compare options."}
           </p>
         </div>
-        <div className="mt-10 grid gap-4 lg:grid-cols-3">
+        <div className="mt-10 grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
           {posts.map((post) => (
             <Link key={post.href} href={post.href}>
               <Card className="h-full p-6 transition hover:border-[color:var(--accent)]/60 hover:bg-[color:var(--surface2)]">

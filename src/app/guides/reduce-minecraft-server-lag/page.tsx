@@ -1,7 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { Card } from "@/components/Card";
-import { Container } from "@/components/Container";
+import { GuideArticleShell } from "@/components/GuideArticleShell";
 import { absoluteUrl, createMetadata } from "@/lib/seo";
 import { getLanguageFromCookies } from "@/server/i18n";
 
@@ -72,42 +71,31 @@ export default function ReduceMinecraftServerLagGuidePage() {
   };
 
   return (
-    <main>
+    <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
-      <Container className="py-16">
-        <div className="mx-auto max-w-4xl">
-          <div className="text-sm font-semibold uppercase tracking-[0.14em] text-[color:var(--accent2)]">Guides</div>
-          <h1 className="mt-3 text-4xl font-extrabold tracking-tight sm:text-5xl">
-            {isEs ? "Cómo reducir lag en un servidor de Minecraft" : "How to reduce Minecraft server lag"}
-          </h1>
-          <p className="mt-4 max-w-3xl text-sm leading-7 text-[color:var(--muted)] sm:text-base">
-            {isEs
-              ? "El objetivo no es prometer cero lag, sino explicar qué variables afectan de verdad al rendimiento para que puedas optimizar con criterio."
-              : "The goal is not to promise zero lag. It is to explain which variables actually affect performance so you can optimize with better judgment."}
-          </p>
-
-          <div className="mt-8 grid gap-4">
-            {sections.map((section) => (
-              <Card key={section.title} className="p-6 sm:p-8">
-                <h2 className="text-2xl font-extrabold tracking-tight">{section.title}</h2>
-                <p className="mt-4 text-sm leading-8 text-[color:var(--muted)] sm:text-base">{section.body}</p>
-              </Card>
-            ))}
-          </div>
-
-          <Card className="mt-8 p-6 sm:p-8">
-            <h2 className="text-2xl font-extrabold tracking-tight">{isEs ? "Sigue explorando" : "Keep exploring"}</h2>
-            <div className="mt-5 grid gap-3 md:grid-cols-2">
-              <Link href="/pricing" className="text-sm font-bold text-[color:var(--accent)]">
-                {isEs ? "Comparar planes de hosting" : "Compare hosting plans"}
-              </Link>
-              <Link href="/guides/choose-minecraft-hosting" className="text-sm font-bold text-[color:var(--accent)]">
-                {isEs ? "Aprender a elegir hosting" : "Learn how to choose hosting"}
-              </Link>
-            </div>
-          </Card>
-        </div>
-      </Container>
-    </main>
+      <GuideArticleShell
+        slug="reduce-minecraft-server-lag"
+        lang={lang}
+        title={isEs ? "Como reducir lag en un servidor de Minecraft" : "How to reduce Minecraft server lag"}
+        intro={isEs
+          ? "El objetivo no es prometer cero lag, sino explicar que variables afectan de verdad al rendimiento para que puedas optimizar con criterio."
+          : "The goal is not to promise zero lag. It is to show which variables actually affect performance so you can optimize with better judgment."}
+        sections={sections}
+        relatedLinks={[
+          {
+            href: "/pricing",
+            label: isEs ? "Comparar planes de hosting" : "Compare hosting plans",
+          },
+          {
+            href: "/guides/choose-minecraft-hosting",
+            label: isEs ? "Aprender a elegir hosting" : "Learn how to choose hosting",
+          },
+          {
+            href: "/features",
+            label: isEs ? "Ver caracteristicas" : "See features",
+          },
+        ]}
+      />
+    </>
   );
 }

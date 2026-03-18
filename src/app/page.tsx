@@ -14,11 +14,11 @@ export const dynamic = "force-dynamic";
 
 export function generateMetadata(): Metadata {
   return createMetadata({
-    title: "Minecraft Server Hosting",
+    title: "Minecraft Hosting Europe",
     description:
-      "Launch free and premium Minecraft servers in under 60 seconds with NVMe storage, DDoS protection, and scalable infrastructure.",
+      "Minecraft hosting in Europe with fast 24/7 servers, low-latency coverage for Spain, NVMe storage, DDoS protection, and affordable scalable plans.",
     path: "/",
-    keywords: ["instant minecraft hosting", "minecraft server deployment", "minecraft hosting plans"],
+    keywords: ["minecraft hosting europe", "minecraft hosting spain", "24/7 minecraft server", "minecraft hosting plans"],
     hreflang: true,
   });
 }
@@ -76,14 +76,14 @@ export default async function Home() {
   const learnCards = isEs
     ? [
         {
+          href: "/minecraft-hosting-spain",
+          title: "Hosting de Minecraft en Espana",
+          description: "Landing enfocada en latencia para Espana, soporte en espanol y comunidades que quieren un posicionamiento geografico claro.",
+        },
+        {
           href: "/minecraft-server-hosting",
           title: "Hosting profesional para servidores de Minecraft",
           description: "Página principal para entender recursos, estabilidad, backups y protección si quieres un servidor serio y escalable.",
-        },
-        {
-          href: "/free-minecraft-hosting",
-          title: "Hosting gratis de Minecraft",
-          description: "Qué puedes esperar de un plan gratuito, cuándo se te queda corto y cómo escalar sin migraciones traumáticas.",
         },
         {
           href: "/modded-minecraft-hosting",
@@ -91,21 +91,21 @@ export default async function Home() {
           description: "Cómo elegir RAM, CPU y disco para Fabric, Forge, modpacks pesados y comunidades con plugins.",
         },
         {
-          href: "/guides/choose-minecraft-hosting",
-          title: "Guía para elegir hosting",
-          description: "Checklist práctica para comparar panel, backups, protección DDoS, rendimiento y soporte antes de comprar.",
+          href: "/blog/how-to-create-a-minecraft-server",
+          title: "Como crear un servidor de Minecraft",
+          description: "Articulo pensado para captar a usuarios que aun estan en fase inicial y despues llevarlos a pricing o a landings transaccionales.",
         },
       ]
     : [
         {
+          href: "/minecraft-hosting-spain",
+          title: "Minecraft hosting in Spain",
+          description: "A dedicated landing for Spain-focused queries around latency, language fit, and regional community expectations.",
+        },
+        {
           href: "/minecraft-server-hosting",
           title: "Professional Minecraft server hosting",
           description: "Understand the infrastructure, backups, performance, and support decisions behind a serious hosting setup.",
-        },
-        {
-          href: "/free-minecraft-hosting",
-          title: "Free Minecraft hosting",
-          description: "Learn when free hosting is enough, when it becomes limiting, and how to scale without painful migrations.",
         },
         {
           href: "/modded-minecraft-hosting",
@@ -113,9 +113,9 @@ export default async function Home() {
           description: "Understand how much RAM, CPU, and NVMe storage you need for Forge, Fabric, and heavier modpacks.",
         },
         {
-          href: "/guides/choose-minecraft-hosting",
-          title: "How to choose hosting",
-          description: "A practical checklist for comparing panel quality, backups, DDoS protection, performance, and support.",
+          href: "/blog/how-to-create-a-minecraft-server",
+          title: "How to create a Minecraft server",
+          description: "An entry-level article for users who are still planning their first server before moving deeper into pricing or comparison pages.",
         },
       ];
   const seoContent = isEs
@@ -124,6 +124,7 @@ export default async function Home() {
         paragraphs: [
           "La mayoría de webs de hosting tienen precios y una tabla de recursos, pero muy pocas explican bien qué problema resuelven. Si alguien busca hosting de Minecraft, normalmente no solo compara precio: quiere saber si el servidor irá fluido, si podrá montar mods, si hay backups y si el panel es fácil de usar.",
           "Cloudsting ahora responde mejor a esa intención porque no solo muestra planes. También conecta cada oferta con páginas específicas para hosting gratis, hosting modded y guías prácticas. Eso ayuda a Google a entender mejor la temática del proyecto y también mejora la navegación interna para usuarios que todavía están comparando opciones.",
+          "Además, separar una landing para Europa y otra para España permite responder búsquedas geográficas más concretas sin forzar la home principal. Eso es mejor que meter la misma keyword local en todas las páginas, porque deja más clara la intención de cada URL y reduce solapamientos innecesarios.",
           "A nivel de producto, la propuesta se apoya en despliegue rápido, NVMe, mitigación DDoS y herramientas claras de gestión. A nivel SEO, eso se convierte en clusters de contenido: páginas transaccionales para captar búsquedas con intención de compra y páginas informativas para captar búsquedas comparativas o de aprendizaje.",
         ],
       }
@@ -132,6 +133,7 @@ export default async function Home() {
         paragraphs: [
           "Most hosting sites publish prices and resource tables, but very few explain the real problem they solve. When someone searches for Minecraft hosting, they are usually not comparing price alone. They want to know whether the server will run smoothly, whether mods are supported, whether backups are included, and whether the panel is simple to manage.",
           "Cloudsting now answers that search intent more clearly because it does not stop at plan listings. It also connects product pages to focused pages for free hosting, modded hosting, and practical guides. That gives search engines stronger topical signals and gives visitors a clearer path while they are still evaluating options.",
+          "Splitting Europe-focused and Spain-focused landing pages also creates cleaner intent targeting than stuffing every page with the same regional phrase. Each URL can answer a narrower search need while still feeding the same Minecraft hosting topic cluster.",
           "From a product angle, the offer is built around fast deployment, NVMe storage, DDoS mitigation, and practical controls. From an SEO angle, that becomes a content cluster: transactional pages for people ready to buy and informational pages for people comparing, researching, or troubleshooting.",
         ],
       };

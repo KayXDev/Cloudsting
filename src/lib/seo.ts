@@ -17,10 +17,13 @@ export const siteConfig = {
   name: "Cloudsting",
   shortName: "Cloudsting",
   description:
-    "Premium Minecraft server hosting with instant deployment, NVMe storage, DDoS protection, and scalable plans for growing communities.",
+    "Minecraft hosting for Europe with fast 24/7 servers, low-latency coverage for Spain and EU communities, NVMe storage, and DDoS protection.",
   keywords: [
     "minecraft hosting",
     "minecraft server hosting",
+    "minecraft hosting europe",
+    "minecraft hosting spain",
+    "24/7 minecraft server",
     "free minecraft hosting",
     "premium minecraft hosting",
     "minecraft vps",
