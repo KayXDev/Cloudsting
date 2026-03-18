@@ -39,7 +39,7 @@ export default async function SupportPage(props: { searchParams?: { ticket?: str
 
   const tickets = user
     ? await prisma.supportTicket.findMany({
-        where: { userId: user.id },
+        where: { userId: user.id, status: { not: "CLOSED" } },
         orderBy: [{ lastReplyAt: "desc" }],
         take: 50,
         select: {

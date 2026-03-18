@@ -35,6 +35,9 @@ const envSchema = z.object({
   PAYPAL_WEBHOOK_ID: optionalString,
   PAYPAL_ENV: z.enum(["sandbox", "live"]).default("sandbox"),
 
+  GOOGLE_CLIENT_ID: optionalString,
+  NEXT_PUBLIC_GOOGLE_CLIENT_ID: optionalString,
+
   SMTP_HOST: optionalString,
   SMTP_PORT: optionalInt,
   SMTP_USER: optionalString,
@@ -82,6 +85,8 @@ function readProcessEnv() {
     PAYPAL_CLIENT_SECRET: process.env.PAYPAL_CLIENT_SECRET,
     PAYPAL_WEBHOOK_ID: process.env.PAYPAL_WEBHOOK_ID,
     PAYPAL_ENV: process.env.PAYPAL_ENV,
+    GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+    NEXT_PUBLIC_GOOGLE_CLIENT_ID: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
     SMTP_HOST: process.env.SMTP_HOST,
     SMTP_PORT: process.env.SMTP_PORT,
     SMTP_USER: process.env.SMTP_USER,

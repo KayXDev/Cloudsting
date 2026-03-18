@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { TERMS, type BillingInterval, totalCentsForInterval } from "@/lib/billingTerms";
+import { addCartItem } from "@/lib/cart";
 import { useLanguage } from "@/components/LanguageProvider";
 import { t } from "@/lib/i18n";
 
@@ -30,6 +31,7 @@ function intervalSuffix(interval: BillingInterval) {
 export function PricingClientGrid(props: { plans: PricingPlan[]; canCheckout: boolean }) {
   const { lang } = useLanguage();
   const [interval, setInterval] = useState<BillingInterval>("month");
+  const [addedSlug, setAddedSlug] = useState<string | null>(null);
   const featuredSlug = props.plans[Math.min(2, props.plans.length - 1)]?.slug ?? props.plans[0]?.slug;
 
   const terms = useMemo(() => TERMS, []);
@@ -102,25 +104,46 @@ export function PricingClientGrid(props: { plans: PricingPlan[]; canCheckout: bo
                 ))}
               </ul>
 
-              {props.canCheckout ? (
-                <Link
-                  href={`/checkout/${p.slug}`}
-                  className={`mt-6 inline-flex w-full items-center justify-center rounded-xl px-4 py-3 text-sm font-extrabold transition ${
-                    isFeatured
-                      ? "bg-[#1AD76F] text-black hover:bg-[#18c263]"
-                      : "bg-[#1b1b1b] text-white hover:bg-[#262626]"
-                  }`}
+              <div className="mt-6 grid gap-2">
+                {props.canCheckout ? (
+                  <Link
+                    href={`/checkout/${p.slug}`}
+                    className={`inline-flex w-full items-center justify-center rounded-xl px-4 py-3 text-sm font-extrabold transition ${
+                      isFeatured
+                        ? "bg-[#1AD76F] text-black hover:bg-[#18c263]"
+                        : "bg-[#1b1b1b] text-white hover:bg-[#262626]"
+                    }`}
+                  >
+                    {p.priceMonthlyCents <= 0 ? t(lang, "pricing.startFree") : t(lang, "pricing.selectPlan").replace("{name}", p.name)}
+                  </Link>
+                ) : (
+                  <Link
+                    href="/login"
+                    className="inline-flex w-full items-center justify-center rounded-xl bg-[#1b1b1b] px-4 py-3 text-sm font-bold text-white hover:bg-[#262626]"
+                  >
+                    {t(lang, "pricing.loginToOrder")}
+                  </Link>
+                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    addCartItem({
+                      planSlug: p.slug,
+                      planName: p.name,
+                      ramMb: p.ramMb,
+                      cpuPercent: p.cpuPercent,
+                      diskMb: p.diskMb,
+                      priceMonthlyCents: p.priceMonthlyCents,
+                      interval,
+                    });
+                    setAddedSlug(p.slug);
+                    window.setTimeout(() => setAddedSlug((current) => current === p.slug ? null : current), 1200);
+                  }}
+                  className="inline-flex w-full items-center justify-center rounded-xl border border-[#2b2b2b] px-4 py-3 text-sm font-bold text-gray-200 transition hover:bg-[#1a1a1a]"
                 >
-                  {p.priceMonthlyCents <= 0 ? t(lang, "pricing.startFree") : t(lang, "pricing.selectPlan").replace("{name}", p.name)}
-                </Link>
-              ) : (
-                <Link
-                  href="/login"
-                  className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-[#1b1b1b] px-4 py-3 text-sm font-bold text-white hover:bg-[#262626]"
-                >
-                  {t(lang, "pricing.loginToOrder")}
-                </Link>
-              )}
+                  {addedSlug === p.slug ? t(lang, "cart.added") : t(lang, "cart.add")}
+                </button>
+              </div>
             </div>
           );
         })}

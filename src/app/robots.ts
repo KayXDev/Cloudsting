@@ -52,6 +52,7 @@ export default function robots(): MetadataRoute.Robots {
           "/guides",
           "/guides/choose-minecraft-hosting",
           "/guides/reduce-minecraft-server-lag",
+          "/community/reviews",
           "/community/server-list",
           ...SUPPORTED_LANGS.flatMap((lang) => [
             `/${lang}`,
@@ -75,6 +76,7 @@ export default function robots(): MetadataRoute.Robots {
             `/${lang}/guides`,
             `/${lang}/guides/choose-minecraft-hosting`,
             `/${lang}/guides/reduce-minecraft-server-lag`,
+            `/${lang}/community/reviews`,
             `/${lang}/community/server-list`,
           ]),
         ],

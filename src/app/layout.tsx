@@ -3,6 +3,7 @@ import { Oxanium, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { FloatingLanguageSwitcher } from "@/components/FloatingLanguageSwitcher";
 import { LanguageProvider } from "@/components/LanguageProvider";
 import { absoluteUrl, createMetadata, siteConfig } from "@/lib/seo";
 import { getLanguageFromCookies } from "@/server/i18n";
@@ -86,6 +87,7 @@ export default function RootLayout({
             <div className="kx-noise" />
             <Navbar />
             <div className="relative">{children}</div>
+            <FloatingLanguageSwitcher />
             <Footer />
           </div>
         </LanguageProvider>

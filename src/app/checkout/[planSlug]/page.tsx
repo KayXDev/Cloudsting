@@ -16,7 +16,7 @@ export function generateMetadata(): Metadata {
   });
 }
 
-export default async function CheckoutPage({ params }: { params: Promise<{ planSlug: string }> }) {
+export default async function CheckoutPage({ params, searchParams }: { params: Promise<{ planSlug: string }>; searchParams?: { cartItem?: string } }) {
   const lang = getLanguageFromCookies();
   const { planSlug } = await params;
 
@@ -62,6 +62,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ planS
           planName={plan.name}
           priceMonthlyCents={plan.priceMonthlyCents}
           availableWalletCents={dbUser?.walletBalanceCents ?? 0}
+          cartItemId={searchParams?.cartItem ?? null}
         />
       </div>
     </main>

@@ -57,9 +57,15 @@ enum SupportTicketStatus {
   CLOSED
 }
 
+enum ForumThreadStatus {
+  OPEN
+  LOCKED
+}
+
 model User {
   id              String         @id @default(auto()) @map("_id") @db.ObjectId
   email           String         @unique
+  googleSub       String?
   passwordHash    String
   name            String?
   role            UserRole       @default(USER)
@@ -75,8 +81,76 @@ model User {
   supportTickets  SupportTicket[]
   supportMessages SupportTicketMessage[] @relation("SupportTicketMessageAuthor")
   walletTransactions WalletTransaction[]
+  forumThreads    ForumThread[]
+  forumPosts      ForumPost[]
+  hostingReviews  HostingReview[]
 
   @@index([role])
+  @@index([googleSub])
+}
+
+model HostingReview {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating      Int
+  title       String
+  body        String
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([published, createdAt])
+  @@index([userId, createdAt])
+  @@index([rating])
+}
+
+model ForumCategory {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  slug        String        @unique
+  name        String
+  description String
+  sortOrder   Int           @default(0)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  threads     ForumThread[]
+
+  @@index([sortOrder])
+}
+
+model ForumThread {
+  id           String            @id @default(auto()) @map("_id") @db.ObjectId
+  categoryId   String            @db.ObjectId
+  category     ForumCategory     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  authorId     String            @db.ObjectId
+  author       User              @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  title        String
+  status       ForumThreadStatus @default(OPEN)
+  pinned       Boolean           @default(false)
+  replyCount   Int               @default(0)
+  viewCount    Int               @default(0)
+  lastPostAt   DateTime          @default(now())
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  posts        ForumPost[]
+
+  @@index([categoryId, pinned, lastPostAt])
+  @@index([authorId, createdAt])
+  @@index([status, lastPostAt])
+}
+
+model ForumPost {
+  id         String      @id @default(auto()) @map("_id") @db.ObjectId
+  threadId   String      @db.ObjectId
+  thread     ForumThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  authorId   String      @db.ObjectId
+  author     User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  body       String
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  @@index([threadId, createdAt])
+  @@index([authorId, createdAt])
 }
 
 model RefreshToken {

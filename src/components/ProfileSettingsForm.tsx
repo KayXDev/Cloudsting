@@ -61,39 +61,45 @@ export function ProfileSettingsForm(props: { initialName: string; initialEmail: 
   }
 
   return (
-    <form onSubmit={onSave} className="grid gap-4">
-      <div className="grid gap-1">
-        <label className="text-xs font-semibold uppercase tracking-[0.08em] text-[color:var(--muted)]">{t(lang, "profile.form.displayName")}</label>
-        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t(lang, "profile.form.namePlaceholder")} />
+    <form onSubmit={onSave} className="grid gap-6">
+      <div className="grid gap-4 lg:grid-cols-2">
+        <div className="grid gap-2">
+          <label className="text-[11px] font-bold uppercase tracking-[0.14em] text-[color:var(--muted)]">{t(lang, "profile.form.displayName")}</label>
+          <Input className="h-12 rounded-2xl bg-[rgba(255,255,255,0.03)]" value={name} onChange={(e) => setName(e.target.value)} placeholder={t(lang, "profile.form.namePlaceholder")} />
+        </div>
+
+        <div className="grid gap-2">
+          <label className="text-[11px] font-bold uppercase tracking-[0.14em] text-[color:var(--muted)]">{t(lang, "profile.form.email")}</label>
+          <Input className="h-12 rounded-2xl bg-[rgba(255,255,255,0.03)]" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t(lang, "profile.form.emailPlaceholder")} />
+        </div>
       </div>
 
-      <div className="grid gap-1">
-        <label className="text-xs font-semibold uppercase tracking-[0.08em] text-[color:var(--muted)]">{t(lang, "profile.form.email")}</label>
-        <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t(lang, "profile.form.emailPlaceholder")} />
+      <div className="rounded-[28px] border border-[color:var(--border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.01))] p-5">
+        <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-[color:var(--muted)]">{t(lang, "profile.form.changePassword")}</div>
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <Input
+            className="h-12 rounded-2xl bg-[rgba(255,255,255,0.03)]"
+            type="password"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            placeholder={t(lang, "profile.form.currentPassword")}
+          />
+          <Input
+            className="h-12 rounded-2xl bg-[rgba(255,255,255,0.03)]"
+            type="password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            placeholder={t(lang, "profile.form.newPassword")}
+          />
+        </div>
       </div>
 
-      <div className="grid gap-3 rounded-xl border border-[color:var(--border)] bg-[color:var(--surface1)] p-4">
-        <div className="text-xs font-semibold uppercase tracking-[0.08em] text-[color:var(--muted)]">{t(lang, "profile.form.changePassword")}</div>
-        <Input
-          type="password"
-          value={currentPassword}
-          onChange={(e) => setCurrentPassword(e.target.value)}
-          placeholder={t(lang, "profile.form.currentPassword")}
-        />
-        <Input
-          type="password"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          placeholder={t(lang, "profile.form.newPassword")}
-        />
-      </div>
-
-      <div className="flex items-center gap-3">
-        <Button type="submit" disabled={loading}>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <Button type="submit" disabled={loading} className="h-12 rounded-2xl px-5 font-extrabold">
           {loading ? t(lang, "common.saving") : t(lang, "profile.form.saveChanges")}
         </Button>
-        {saved ? <div className="text-xs font-semibold text-[color:var(--accent)]">{saved}</div> : null}
-        {error ? <div className="text-xs font-semibold text-[color:var(--danger)]">{error}</div> : null}
+        {saved ? <div className="text-sm font-semibold text-[color:var(--accent)]">{saved}</div> : null}
+        {error ? <div className="text-sm font-semibold text-[color:var(--danger)]">{error}</div> : null}
       </div>
     </form>
   );

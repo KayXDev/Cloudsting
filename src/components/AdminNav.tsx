@@ -14,6 +14,7 @@ export function AdminNav() {
     { href: "/admin/users", label: t(lang, "admin.nav.users") },
     { href: "/admin/servers", label: t(lang, "admin.nav.servers") },
     { href: "/admin/plans", label: t(lang, "admin.nav.plans") },
+    { href: "/admin/forum", label: t(lang, "admin.nav.forum") },
     { href: "/admin/support", label: t(lang, "admin.nav.support") },
     { href: "/admin/infra", label: t(lang, "admin.nav.infra") },
     { href: "/admin/billing", label: t(lang, "admin.nav.billing") },

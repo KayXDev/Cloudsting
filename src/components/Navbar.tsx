@@ -6,14 +6,35 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Container } from "@/components/Container";
 import { LogoutButton } from "@/components/LogoutButton";
+import { totalCentsForInterval } from "@/lib/billingTerms";
+import { readCart, removeCartItem, type CartItem } from "@/lib/cart";
 import { useLanguage } from "@/components/LanguageProvider";
-import { t, type LangCode, LANG_LABELS } from "@/lib/i18n";
+import { t } from "@/lib/i18n";
+
+function formatUsd(cents: number) {
+  return `$${(cents / 100).toFixed(2)}`;
+}
+
+function RoleBadge(props: { role: "USER" | "ADMIN" }) {
+  const isAdmin = props.role === "ADMIN";
+
+  return (
+    <span
+      className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] ${
+        isAdmin
+          ? "border-[#1AD76F]/40 bg-[#1AD76F]/10 text-[#7fe0aa]"
+          : "border-[#2f3a34] bg-[#141917] text-[#b7c2bc]"
+      }`}
+    >
+      {isAdmin ? "ADMIN" : "USER"}
+    </span>
+  );
+}
 
 export function Navbar() {
   const pathname = usePathname();
-  const { lang, setLang } = useLanguage();
+  const { lang } = useLanguage();
   const headerRef = useRef<HTMLElement | null>(null);
-  const languageRef = useRef<HTMLDivElement | null>(null);
 
   const links = [
     { href: "/", label: t(lang, "nav.home") },
@@ -23,6 +44,7 @@ export function Navbar() {
 
   const communityLinks = [
     { href: "/community/forum", label: t(lang, "nav.forum") },
+    { href: "/community/reviews", label: t(lang, "nav.reviews") },
     { href: "/community/server-list", label: t(lang, "nav.serverList") },
     { href: "/community/search", label: t(lang, "nav.search") },
   ];
@@ -32,10 +54,12 @@ export function Navbar() {
   const [communityOpen, setCommunityOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileCommunityOpen, setMobileCommunityOpen] = useState(false);
-  const [languageOpen, setLanguageOpen] = useState(false);
   const [walletOpen, setWalletOpen] = useState(false);
   const [serversOpen, setServersOpen] = useState(false);
-  const [languageQuery, setLanguageQuery] = useState("");
+  const [cartOpen, setCartOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [cartCount, setCartCount] = useState(0);
 
   async function fetchWithRetry(url: string, init?: RequestInit) {
     let lastResponse: Response | null = null;
@@ -120,9 +144,10 @@ export function Navbar() {
       if (!headerRef.current) return;
       if (!headerRef.current.contains(e.target as Node)) {
         setCommunityOpen(false);
-        setLanguageOpen(false);
         setWalletOpen(false);
         setServersOpen(false);
+        setCartOpen(false);
+        setProfileOpen(false);
       }
     }
 
@@ -131,9 +156,26 @@ export function Navbar() {
   }, []);
 
   useEffect(() => {
-    setLanguageOpen(false);
+    function syncCart() {
+      const items = readCart();
+      setCartItems(items);
+      setCartCount(items.length);
+    }
+
+    syncCart();
+    window.addEventListener("storage", syncCart);
+    window.addEventListener("cloudsting-cart-change", syncCart);
+    return () => {
+      window.removeEventListener("storage", syncCart);
+      window.removeEventListener("cloudsting-cart-change", syncCart);
+    };
+  }, []);
+
+  useEffect(() => {
     setWalletOpen(false);
     setServersOpen(false);
+    setCartOpen(false);
+    setProfileOpen(false);
     setCommunityOpen(false);
     setMobileOpen(false);
     setMobileCommunityOpen(false);
@@ -141,34 +183,19 @@ export function Navbar() {
 
   const navItemClass =
     "inline-flex h-10 items-center rounded-lg px-4 text-sm font-semibold leading-none transition";
-
-  const currentLanguage = LANG_LABELS[lang].native;
-
-  const languages = [
-    { code: "en", native: LANG_LABELS.en.native, local: LANG_LABELS.en.localEs },
-    { code: "nl", native: LANG_LABELS.nl.native, local: LANG_LABELS.nl.localEs },
-    { code: "ru", native: LANG_LABELS.ru.native, local: LANG_LABELS.ru.localEs },
-    { code: "es", native: LANG_LABELS.es.native, local: LANG_LABELS.es.localEs },
-    { code: "fr", native: LANG_LABELS.fr.native, local: LANG_LABELS.fr.localEs },
-    { code: "de", native: LANG_LABELS.de.native, local: LANG_LABELS.de.localEs },
-    { code: "pl", native: LANG_LABELS.pl.native, local: LANG_LABELS.pl.localEs },
-    { code: "pt", native: LANG_LABELS.pt.native, local: LANG_LABELS.pt.localEs },
-    { code: "cs", native: LANG_LABELS.cs.native, local: LANG_LABELS.cs.localEs },
-    { code: "hi", native: LANG_LABELS.hi.native, local: LANG_LABELS.hi.localEs },
-    { code: "tr", native: LANG_LABELS.tr.native, local: LANG_LABELS.tr.localEs },
-    { code: "it", native: LANG_LABELS.it.native, local: LANG_LABELS.it.localEs },
-  ];
-
-  const filteredLanguages = languages.filter((l) => {
-    const q = languageQuery.trim().toLowerCase();
-    if (!q) return true;
-    return l.native.toLowerCase().includes(q) || l.local.toLowerCase().includes(q);
-  });
+  const compactIconButtonClass =
+    "relative inline-flex h-10 w-10 items-center justify-center rounded-lg text-gray-200 transition hover:bg-[#171717]";
 
   const moneyFmt = new Intl.NumberFormat(lang === "es" ? "es-ES" : "en-US", {
     style: "currency",
     currency: "USD",
   });
+  const cartPreviewItems = cartItems.slice(0, 3);
+  const cartEstimatedTotal = cartItems.reduce((sum, item) => sum + totalCentsForInterval(item.priceMonthlyCents, item.interval), 0);
+
+  function handleRemoveCartItem(id: string) {
+    removeCartItem(id);
+  }
 
   return (
     <header ref={headerRef} className="sticky top-0 z-50 border-b border-[#1e1e1e] bg-[#0a0a0a]/95 backdrop-blur-xl">
@@ -205,9 +232,9 @@ export function Navbar() {
                 type="button"
                 onClick={() => {
                   setCommunityOpen((v) => !v);
-                  setLanguageOpen(false);
                   setWalletOpen(false);
                   setServersOpen(false);
+                  setProfileOpen(false);
                 }}
                 className={`${navItemClass} gap-2 ${
                   pathname.startsWith("/community")
@@ -247,80 +274,7 @@ export function Navbar() {
         </div>
 
         {user ? (
-          <div className="relative hidden items-center gap-3 lg:flex" ref={languageRef}>
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => {
-                  setLanguageOpen((v) => !v);
-                  setCommunityOpen(false);
-                  setWalletOpen(false);
-                  setServersOpen(false);
-                }}
-                className="inline-flex h-10 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-gray-200 hover:bg-[#171717]"
-              >
-                <svg viewBox="0 0 20 20" className="h-5 w-5" fill="none" aria-hidden="true">
-                  <circle cx="10" cy="10" r="8" stroke="currentColor" strokeWidth="1.7" />
-                  <path d="M2 10H18M10 2C12 4 13 7 13 10C13 13 12 16 10 18C8 16 7 13 7 10C7 7 8 4 10 2Z" stroke="currentColor" strokeWidth="1.5" />
-                </svg>
-                <span>{currentLanguage}</span>
-                <svg viewBox="0 0 20 20" className={`h-4 w-4 transition-transform ${languageOpen ? "rotate-180" : "rotate-0"}`} fill="none" aria-hidden="true">
-                  <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
-
-              {languageOpen ? (
-                <div className="absolute left-0 top-full z-[70] mt-2 w-[380px] rounded-2xl border border-[#2A2A2A] bg-[#111215] shadow-[0_20px_40px_rgba(0,0,0,0.45)]">
-                  <div className="p-3">
-                    <div className="flex items-center gap-2 rounded-xl border border-[#1AD76F]/55 bg-[#0c1016] px-3 py-2">
-                      <svg viewBox="0 0 20 20" className="h-4 w-4 text-gray-400" fill="none" aria-hidden="true">
-                        <circle cx="9" cy="9" r="6" stroke="currentColor" strokeWidth="1.8" />
-                        <path d="M13.5 13.5L18 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-                      </svg>
-                      <input
-                        value={languageQuery}
-                        onChange={(e) => setLanguageQuery(e.target.value)}
-                        placeholder={t(lang, "nav.languageSearch")}
-                        className="w-full bg-transparent text-sm text-gray-200 placeholder:text-gray-500 focus:outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="max-h-[300px] overflow-y-auto border-t border-[#25272d] p-3">
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                      {filteredLanguages.map((lng) => {
-                        const active = lng.code === lang;
-                        return (
-                          <button
-                            key={lng.code}
-                            type="button"
-                            onClick={async () => {
-                              await setLang(lng.code as LangCode);
-                              setLanguageOpen(false);
-                            }}
-                            className="flex items-center justify-between text-left"
-                          >
-                            <span>
-                              <span className={`block text-base font-bold leading-5 ${active ? "text-[#1AD76F]" : "text-gray-200"}`}>
-                                {lng.native}
-                              </span>
-                              <span className="mt-0.5 block text-xs text-gray-500">{lng.local}</span>
-                            </span>
-                            {active ? (
-                              <svg viewBox="0 0 20 20" className="h-4 w-4 text-[#1AD76F]" fill="none" aria-hidden="true">
-                                <path d="M4 10.5L8 14.5L16 6.5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-                              </svg>
-                            ) : null}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              ) : null}
-            </div>
-
-            <span className="h-8 w-px bg-[#2a2a2a]" />
+          <div className="relative hidden items-center gap-2 lg:flex">
 
             <div className="relative">
               <button
@@ -328,8 +282,9 @@ export function Navbar() {
                 onClick={() => {
                   setWalletOpen((v) => !v);
                   setCommunityOpen(false);
-                  setLanguageOpen(false);
                   setServersOpen(false);
+                  setCartOpen(false);
+                  setProfileOpen(false);
                 }}
                 className="inline-flex h-10 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-gray-200 hover:bg-[#171717]"
               >
@@ -368,8 +323,9 @@ export function Navbar() {
                 onClick={() => {
                   setServersOpen((v) => !v);
                   setCommunityOpen(false);
-                  setLanguageOpen(false);
                   setWalletOpen(false);
+                  setCartOpen(false);
+                  setProfileOpen(false);
                 }}
                 className="inline-flex h-10 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-gray-200 hover:bg-[#171717]"
               >
@@ -408,7 +364,86 @@ export function Navbar() {
               ) : null}
             </div>
 
-            <span className="h-8 w-px bg-[#2a2a2a]" />
+            <div className="relative">
+              <button
+                type="button"
+                aria-label={t(lang, "nav.cart")}
+                title={t(lang, "nav.cart")}
+                onClick={() => {
+                  setCartOpen((v) => !v);
+                  setCommunityOpen(false);
+                  setWalletOpen(false);
+                  setServersOpen(false);
+                  setProfileOpen(false);
+                }}
+                className={`${compactIconButtonClass} ${cartOpen ? "bg-[#171717]" : ""}`}
+              >
+                <svg viewBox="0 0 20 20" className="h-5 w-5" fill="none" aria-hidden="true">
+                  <path d="M3 4.5H5.2L6.4 11.5H14.8L16.5 6.5H7.1" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+                  <circle cx="8.2" cy="15.2" r="1.2" fill="currentColor" />
+                  <circle cx="13.8" cy="15.2" r="1.2" fill="currentColor" />
+                </svg>
+                {cartCount > 0 ? <span className="absolute -right-1 -top-1 inline-flex min-w-5 items-center justify-center rounded-full bg-[#1AD76F] px-1.5 py-0.5 text-[10px] font-extrabold text-black">{cartCount}</span> : null}
+              </button>
+
+              {cartOpen ? (
+                <div className="absolute left-0 top-full z-[70] mt-2 w-72 rounded-xl border border-[#2a2a2a] bg-[#111111] p-2 shadow-[0_16px_30px_rgba(0,0,0,0.42)]">
+                  <div className="rounded-lg border border-[#232323] px-3 py-2">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="text-[11px] font-bold uppercase tracking-[0.08em] text-gray-500">{t(lang, "cart.summary")}</div>
+                      <div className="text-xs font-semibold text-gray-400">{t(lang, "cart.items").replace("{count}", String(cartCount))}</div>
+                    </div>
+                    <div className="mt-2 text-sm font-extrabold text-white">{formatUsd(cartEstimatedTotal)}</div>
+                  </div>
+
+                  <div className="mt-2 grid gap-1">
+                    {cartPreviewItems.length === 0 ? (
+                      <div className="rounded-lg px-3 py-2 text-sm text-gray-400">{t(lang, "cart.empty")}</div>
+                    ) : (
+                      cartPreviewItems.map((item) => (
+                        <div key={item.id} className="flex items-start gap-2 rounded-lg px-3 py-2 hover:bg-[#1a1a1a]">
+                          <Link
+                            href={`/checkout/${item.planSlug}?cartItem=${item.id}`}
+                            className="min-w-0 flex-1"
+                            onClick={() => setCartOpen(false)}
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <div className="truncate text-sm font-semibold text-gray-100">{item.planName}</div>
+                                <div className="mt-1 truncate text-xs text-gray-500">{item.serverName}</div>
+                              </div>
+                              <div className="shrink-0 text-xs font-bold text-[#7fe0aa]">{formatUsd(totalCentsForInterval(item.priceMonthlyCents, item.interval))}</div>
+                            </div>
+                          </Link>
+                          <button
+                            type="button"
+                            aria-label={t(lang, "cart.remove")}
+                            title={t(lang, "cart.remove")}
+                            onClick={() => handleRemoveCartItem(item.id)}
+                            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#2a2a2a] text-gray-400 transition hover:border-[#4a2a2a] hover:bg-[#211313] hover:text-[#ff8d8d]"
+                          >
+                            <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" aria-hidden="true">
+                              <path d="M6 6L14 14M14 6L6 14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                            </svg>
+                          </button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                    <Link href="/cart" className="rounded-lg border border-[#2a2a2a] px-3 py-2 text-center text-sm font-semibold text-gray-200 hover:bg-[#1a1a1a]" onClick={() => setCartOpen(false)}>
+                      {t(lang, "cart.summary")}
+                    </Link>
+                    <Link href="/cart" className="rounded-lg bg-[#1AD76F] px-3 py-2 text-center text-sm font-extrabold text-black hover:bg-[#15b85e]" onClick={() => setCartOpen(false)}>
+                      {t(lang, "cart.checkout")}
+                    </Link>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+
+            <span className="mx-1 h-8 w-px bg-[#2a2a2a]" />
 
             {user.role === "ADMIN" ? (
               <Link
@@ -419,21 +454,52 @@ export function Navbar() {
               </Link>
             ) : null}
 
-            <Link
-              href="/profile"
-              className="inline-flex h-10 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-gray-200 hover:bg-[#171717]"
-            >
-              <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#1AD76F]/40 bg-[#1AD76F]/10 text-[#1AD76F]">
-                <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" aria-hidden="true">
-                  <circle cx="10" cy="6.5" r="2.8" stroke="currentColor" strokeWidth="1.6" />
-                  <path d="M4 16C4 13.5 6.2 11.5 9 11.5H11C13.8 11.5 16 13.5 16 16" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => {
+                  setProfileOpen((v) => !v);
+                  setCommunityOpen(false);
+                  setWalletOpen(false);
+                  setServersOpen(false);
+                  setCartOpen(false);
+                }}
+                className={`inline-flex h-10 max-w-[170px] items-center gap-2 rounded-lg px-3 text-sm font-semibold text-gray-200 hover:bg-[#171717] xl:max-w-[220px] ${profileOpen ? "bg-[#171717]" : ""}`}
+              >
+                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#1AD76F]/40 bg-[#1AD76F]/10 text-[#1AD76F]">
+                  <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" aria-hidden="true">
+                    <circle cx="10" cy="6.5" r="2.8" stroke="currentColor" strokeWidth="1.6" />
+                    <path d="M4 16C4 13.5 6.2 11.5 9 11.5H11C13.8 11.5 16 13.5 16 16" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                  </svg>
+                </span>
+                <span className="truncate">{(user.name && user.name.trim()) ? user.name : user.email.split("@")[0]}</span>
+                <svg viewBox="0 0 20 20" className={`h-4 w-4 transition-transform ${profileOpen ? "rotate-180" : "rotate-0"}`} fill="none" aria-hidden="true">
+                  <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-              </span>
-              <span>{(user.name && user.name.trim()) ? user.name : user.email.split("@")[0]}</span>
-              <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" aria-hidden="true">
-                <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </Link>
+              </button>
+
+              {profileOpen ? (
+                <div className="absolute right-0 top-full z-[70] mt-2 w-56 rounded-xl border border-[#2a2a2a] bg-[#111111] p-2 shadow-[0_16px_30px_rgba(0,0,0,0.42)]">
+                  <div className="mb-2 rounded-lg border border-[#232323] px-3 py-2">
+                    <div className="text-xs font-semibold text-gray-400">{user.email}</div>
+                    <div className="mt-2">
+                      <RoleBadge role={user.role} />
+                    </div>
+                  </div>
+                  <Link
+                    href="/profile"
+                    className="block rounded-lg px-3 py-2 text-sm font-semibold text-gray-200 hover:bg-[#1a1a1a]"
+                    onClick={() => setProfileOpen(false)}
+                  >
+                    {t(lang, "nav.profile")}
+                  </Link>
+                  <LogoutButton
+                    className="w-full justify-start rounded-lg px-3 text-sm font-semibold text-gray-200 hover:bg-[#1a1a1a]"
+                    onLoggedOut={() => setProfileOpen(false)}
+                  />
+                </div>
+              ) : null}
+            </div>
 
           </div>
         ) : (
@@ -526,8 +592,13 @@ export function Navbar() {
             ) : (
               <div className="mt-1 grid gap-2">
                 <div className="rounded-xl border border-[#2a2a2a] bg-[#101010] p-3">
-                  <div className="text-sm font-bold text-white">{(user.name && user.name.trim()) ? user.name : user.email.split("@")[0]}</div>
-                  <div className="mt-1 text-xs text-gray-500">{user.email}</div>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="text-sm font-bold text-white">{(user.name && user.name.trim()) ? user.name : user.email.split("@")[0]}</div>
+                      <div className="mt-1 text-xs text-gray-500">{user.email}</div>
+                    </div>
+                    <RoleBadge role={user.role} />
+                  </div>
                   <div className="mt-2 text-xs font-semibold text-[#1AD76F]">{t(lang, "wallet.cards.balance")}: {moneyFmt.format((user.walletBalanceCents ?? 0) / 100)}</div>
                   <div className="mt-3 grid gap-2 sm:grid-cols-2">
                     <Link

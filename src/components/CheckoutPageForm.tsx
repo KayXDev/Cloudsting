@@ -11,6 +11,7 @@ import {
   subtotalCentsForInterval,
   totalCentsForInterval,
 } from "@/lib/billingTerms";
+import { findCartItem } from "@/lib/cart";
 import { t } from "@/lib/i18n";
 
 function formatUsd(cents: number) {
@@ -22,6 +23,7 @@ export function CheckoutPageForm(props: {
   planName: string;
   priceMonthlyCents: number;
   availableWalletCents: number;
+  cartItemId?: string | null;
 }) {
   const { lang } = useLanguage();
   const [serverName, setServerName] = useState(() => t(lang, "checkout.defaultServerName"));
@@ -46,6 +48,15 @@ export function CheckoutPageForm(props: {
   }, [props.priceMonthlyCents, interval]);
 
   const hasEnoughWalletBalance = props.availableWalletCents >= priceCents;
+
+  useEffect(() => {
+    if (!props.cartItemId) return;
+    const cartItem = findCartItem(props.cartItemId);
+    if (!cartItem || cartItem.planSlug !== props.planSlug) return;
+    setServerName(cartItem.serverName || props.planName);
+    setVanillaVersion(cartItem.vanillaVersion || "latest");
+    setInterval(cartItem.interval);
+  }, [props.cartItemId, props.planSlug, props.planName]);
 
   useEffect(() => {
     let cancelled = false;

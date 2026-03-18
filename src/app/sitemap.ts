@@ -24,6 +24,7 @@ const routes = [
   { path: "/features", changeFrequency: "weekly", priority: 0.8 },
   { path: "/faq", changeFrequency: "weekly", priority: 0.75 },
   { path: "/status", changeFrequency: "hourly", priority: 0.7 },
+  { path: "/community/reviews", changeFrequency: "weekly", priority: 0.7 },
   { path: "/community/server-list", changeFrequency: "daily", priority: 0.65 },
 ] as const;
 

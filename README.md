@@ -115,6 +115,11 @@ See `.env.example` for the canonical list.
 - `PAYPAL_WEBHOOK_ID`
 - `PAYPAL_ENV` (`sandbox` | `live`)
 
+### Authentication (optional)
+
+- `GOOGLE_CLIENT_ID`
+- `NEXT_PUBLIC_GOOGLE_CLIENT_ID` — same Google OAuth client id exposed to the browser for the Google sign-in button
+
 ### Email / Support (optional)
 
 - `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`
@@ -164,11 +169,13 @@ Example:
 
 - `/dashboard` — User dashboard (servers list + actions)
 - `/profile` — Profile settings
+- `/cart` — Persisted shopping cart for plan selections
 - `/checkout/[planSlug]` — Checkout for a plan
 
 ### Community
 
-- `/community/forum` — Forum placeholder
+- `/community/forum` — Community forum
+- `/community/reviews` — Public hosting reviews
 - `/community/search` — Community search placeholder
 - `/community/server-list` — Public server list (DB must be configured)
 
@@ -181,6 +188,7 @@ Example:
 - `/admin/plans`
 - `/admin/infra`
 - `/admin/billing`
+- `/admin/forum`
 
 ## 🔌 API Routes
 
@@ -229,6 +237,7 @@ All API endpoints are implemented via Next.js App Router route handlers.
 - `GET /api/health` — health check
 - `GET /api/minecraft/versions` — available versions for checkout selector
 - `PATCH /api/profile` — update profile
+- `POST /api/reviews` — create or update the current user's public hosting review
 - `POST /api/support` — submit support form
 - `POST /api/i18n/language` — set language cookie
 
@@ -247,7 +256,7 @@ All API endpoints are implemented via Next.js App Router route handlers.
 
 ## 🧾 Payments + Provisioning Flow
 
-1. User selects a plan → `/checkout/[planSlug]`
+1. User selects a plan from pricing or saves it to `/cart`
 2. App creates checkout session (Stripe/PayPal)
 3. Success callback +/or webhooks mark order as paid
 4. App provisions a server in Pterodactyl (if configured)
