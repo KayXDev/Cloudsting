@@ -13,7 +13,8 @@
     "prisma:seed": "node prisma/seed.js",
     "ptero:relink-users": "node --env-file=.env scripts/relink-pterodactyl-users.mjs",
     "receipts:resend-pending": "node --env-file=.env scripts/resend-order-receipts.mjs",
-    "prisma:find-orphans": "node --env-file=.env scripts/find-orphan-records.mjs"
+    "prisma:find-orphans": "node --env-file=.env scripts/find-orphan-records.mjs",
+    "prisma:clean-safe-orphans": "node --env-file=.env scripts/cleanup-safe-orphans.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.6.0",
