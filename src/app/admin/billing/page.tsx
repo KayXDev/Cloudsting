@@ -9,12 +9,28 @@ export default async function AdminBillingPage() {
     prisma.order.findMany({
       orderBy: { createdAt: "desc" },
       take: 120,
-      include: { user: { select: { email: true } } },
+      select: {
+        id: true,
+        userId: true,
+        planId: true,
+        provider: true,
+        amountCents: true,
+        status: true,
+        createdAt: true,
+      },
     }),
     prisma.plan.findMany({ select: { id: true, name: true } }),
   ]);
 
   const planById = new Map(plans.map((p) => [p.id, p.name]));
+  const userIds = Array.from(new Set(orders.map((order) => order.userId)));
+  const users = userIds.length
+    ? await prisma.user.findMany({
+        where: { id: { in: userIds } },
+        select: { id: true, email: true },
+      })
+    : [];
+  const userEmailById = new Map(users.map((user) => [user.id, user.email]));
 
   return (
     <Card className="p-6">
@@ -34,7 +50,7 @@ export default async function AdminBillingPage() {
             >
               <div className="flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
                 <div className="min-w-0">
-                  <div className="truncate font-semibold text-[color:var(--text)]">{o.user.email}</div>
+                  <div className="truncate font-semibold text-[color:var(--text)]">{userEmailById.get(o.userId) ?? `Deleted user (${o.userId})`}</div>
                   <div className="mt-1 text-xs">
                     {(planById.get(o.planId) ?? t(lang, "common.unknownPlan"))} • {o.provider} • ${(o.amountCents / 100).toFixed(2)} • {o.status}
                   </div>

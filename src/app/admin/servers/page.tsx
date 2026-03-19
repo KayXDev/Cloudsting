@@ -11,12 +11,30 @@ export default async function AdminServersPage() {
       where: { status: { not: "DELETED" } },
       orderBy: { createdAt: "desc" },
       take: 200,
-      include: { user: { select: { email: true } } },
+      select: {
+        id: true,
+        userId: true,
+        planId: true,
+        name: true,
+        status: true,
+        pterodactylIdentifier: true,
+        memoryMb: true,
+        cpuPercent: true,
+        diskMb: true,
+      },
     }),
     prisma.plan.findMany({ select: { id: true, slug: true } }),
   ]);
 
   const planById = new Map(plans.map((p) => [p.id, p.slug]));
+  const userIds = Array.from(new Set(servers.map((server) => server.userId)));
+  const users = userIds.length
+    ? await prisma.user.findMany({
+        where: { id: { in: userIds } },
+        select: { id: true, email: true },
+      })
+    : [];
+  const userEmailById = new Map(users.map((user) => [user.id, user.email]));
   const panelUrl = process.env.NEXT_PUBLIC_PTERO_PANEL_URL ?? process.env.PTERO_URL ?? "";
 
   return (
@@ -32,7 +50,7 @@ export default async function AdminServersPage() {
           id: s.id,
           name: s.name,
           status: s.status,
-          userEmail: s.user.email,
+          userEmail: userEmailById.get(s.userId) ?? `Deleted user (${s.userId})`,
           planSlug: planById.get(s.planId) ?? "unknown",
           pterodactylIdentifier: s.pterodactylIdentifier ?? null,
           memoryMb: s.memoryMb,

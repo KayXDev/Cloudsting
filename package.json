@@ -12,7 +12,8 @@
     "prisma:push": "prisma db push",
     "prisma:seed": "node prisma/seed.js",
     "ptero:relink-users": "node --env-file=.env scripts/relink-pterodactyl-users.mjs",
-    "receipts:resend-pending": "node --env-file=.env scripts/resend-order-receipts.mjs"
+    "receipts:resend-pending": "node --env-file=.env scripts/resend-order-receipts.mjs",
+    "prisma:find-orphans": "node --env-file=.env scripts/find-orphan-records.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.6.0",

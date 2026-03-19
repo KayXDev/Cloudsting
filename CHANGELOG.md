@@ -8,3 +8,4 @@
 - Improved paid checkout redirects so users land directly on the newly purchased server in the dashboard.
 - Added Pterodactyl deletion reconciliation so removed panel servers are reflected locally.
 - Added a resend utility for paid orders missing receipt delivery and validated the production build successfully before pushing.
+- Added a Prisma diagnostic script to list orphaned orders and servers, including missing user, plan, and order relations.
