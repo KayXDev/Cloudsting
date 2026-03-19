@@ -137,6 +137,12 @@ See `.env.example` for the canonical list.
 - `PTERO_DEFAULT_ENV`
 - `NEXT_PUBLIC_PTERO_PANEL_URL` — used for UI link-outs to panel
 
+If you already have users created in Pterodactyl and some local accounts still have no `pterodactylUserId`, you can relink them by email with:
+
+```bash
+npm run ptero:relink-users
+```
+
 ### Paymenter sync (optional)
 
 If you use Paymenter as an external billing/admin panel and want orders to sync as “Services”:

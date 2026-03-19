@@ -12,6 +12,16 @@ export async function provisionPanelAccessForUser(user: { id: string; email: str
 
   try {
     const ptero = new PterodactylClient();
+    const existing = await ptero.findUserByEmail(user.email);
+
+    if (existing) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { pterodactylUserId: existing.id },
+      });
+      return;
+    }
+
     const tempPassword = crypto.randomBytes(18).toString("base64url");
     const usernameBase = user.email.split("@")[0]?.replace(/[^a-zA-Z0-9]/g, "").slice(0, 16) || "cloud";
     const username = `${usernameBase}${crypto.randomBytes(2).toString("hex")}`.slice(0, 20);
@@ -44,7 +54,7 @@ export async function provisionPanelAccessForUser(user: { id: string; email: str
     } catch {
       // ignore email failures
     }
-  } catch {
-    // ignore panel user creation failures (can be linked later by admin)
+  } catch (err) {
+    console.error("Panel access provisioning failed", err);
   }
 }

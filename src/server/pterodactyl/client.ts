@@ -8,6 +8,10 @@ type PteroApplicationUser = {
   last_name: string;
 };
 
+type PteroCollectionResponse<T> = {
+  data: Array<{ attributes: T }>;
+};
+
 type PteroApplicationServer = {
   id: number;
   identifier: string;
@@ -112,6 +116,45 @@ export class PterodactylClient {
     );
 
     return res.attributes;
+  }
+
+  async findUserByEmail(email: string): Promise<PteroApplicationUser | null> {
+    const normalizedEmail = email.trim().toLowerCase();
+    const query = encodeURIComponent(normalizedEmail);
+
+    try {
+      const filtered = await this.requestApplication<PteroCollectionResponse<PteroApplicationUser>>(
+        `/api/application/users?filter[email]=${query}`
+      );
+
+      const exact = filtered.data
+        .map((entry) => entry.attributes)
+        .find((user) => user.email.trim().toLowerCase() === normalizedEmail);
+
+      if (exact) return exact;
+    } catch {
+      // Fall through to broader lookup.
+    }
+
+    let page = 1;
+    while (true) {
+      const fallback = await this.requestApplication<
+        PteroCollectionResponse<PteroApplicationUser> & { meta?: { pagination?: { total_pages?: number } } }
+      >(`/api/application/users?page=${page}&per_page=100`);
+
+      const exact = fallback.data
+        .map((entry) => entry.attributes)
+        .find((user) => user.email.trim().toLowerCase() === normalizedEmail);
+
+      if (exact) return exact;
+
+      const totalPages = fallback.meta?.pagination?.total_pages ?? 1;
+      if (page >= totalPages) {
+        return null;
+      }
+
+      page += 1;
+    }
   }
 
   async createServer(input: {
