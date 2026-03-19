@@ -6,9 +6,10 @@ import { requireUser } from "@/server/auth/session";
 import { checkStockForPlanRam } from "@/server/stock";
 import { provisionMinecraftServer } from "@/server/provisioning";
 import { ensurePaymenterServiceForOrder } from "@/server/billing/paymenter";
-import { sendOrderReceiptEmail } from "@/server/email/receipts";
 import { totalCentsForInterval, type BillingInterval } from "@/lib/billingTerms";
 import { createWalletDebitForOrder, refundWalletOrderDebit } from "@/server/wallet";
+import { getLanguageFromRequest } from "@/server/i18n";
+import { sendOrderPurchaseNotifications } from "@/server/notifications/purchases";
 
 const schema = z.object({
   planSlug: z.string().min(1),
@@ -22,10 +23,19 @@ const schema = z.object({
     .default("latest"),
 });
 
+async function buildDashboardUrl(orderId: string, params: Record<string, string>) {
+  const server = await prisma.server.findUnique({ where: { orderId }, select: { id: true } });
+  const search = new URLSearchParams(params);
+  if (server) search.set("server", server.id);
+  const base = `${env.APP_URL}/dashboard?${search.toString()}`;
+  return server ? `${base}#server-${server.id}` : base;
+}
+
 export async function POST(req: Request) {
   try {
     const user = await requireUser();
     const body = schema.parse(await req.json());
+    const language = getLanguageFromRequest(req);
 
     const plan = await prisma.plan.findUnique({ where: { slug: body.planSlug } });
     if (!plan || !plan.active) return jsonError("Plan not available", 400);
@@ -46,6 +56,7 @@ export async function POST(req: Request) {
       amountCents,
       serverName: body.serverName,
       interval: body.interval,
+      language,
       vanillaVersion: body.vanillaVersion,
     });
 
@@ -70,12 +81,12 @@ export async function POST(req: Request) {
       }
 
       try {
-        await sendOrderReceiptEmail(debit.order.id);
+        await sendOrderPurchaseNotifications(debit.order.id);
       } catch (err) {
-        console.error("Receipt email failed (wallet checkout)", err);
+        console.error("Purchase notifications failed (wallet checkout)", err);
       }
 
-      return jsonOk({ url: `${env.APP_URL}/dashboard?paid=1&wallet=1` });
+      return jsonOk({ url: await buildDashboardUrl(debit.order.id, { paid: "1", wallet: "1" }) });
     } catch (err: any) {
       await prisma.server.updateMany({
         where: { orderId: debit.order.id },

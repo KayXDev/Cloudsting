@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { FloatingLanguageSwitcher } from "@/components/FloatingLanguageSwitcher";
+import { CookieConsentBanner } from "@/components/CookieConsentBanner";
 import { LanguageProvider } from "@/components/LanguageProvider";
 import { absoluteUrl, createMetadata, siteConfig } from "@/lib/seo";
 import { getLanguageFromCookies } from "@/server/i18n";
@@ -88,6 +89,7 @@ export default function RootLayout({
             <Navbar />
             <div className="relative">{children}</div>
             <FloatingLanguageSwitcher />
+            <CookieConsentBanner />
             <Footer />
           </div>
         </LanguageProvider>

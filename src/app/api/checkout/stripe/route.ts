@@ -7,7 +7,8 @@ import { getStripe } from "@/server/payments/stripe";
 import { checkStockForPlanRam } from "@/server/stock";
 import { provisionMinecraftServer } from "@/server/provisioning";
 import { ensurePaymenterServiceForOrder } from "@/server/billing/paymenter";
-import { sendOrderReceiptEmail } from "@/server/email/receipts";
+import { getLanguageFromRequest } from "@/server/i18n";
+import { sendOrderPurchaseNotifications } from "@/server/notifications/purchases";
 import { stripeRecurringForInterval, totalCentsForInterval, type BillingInterval } from "@/lib/billingTerms";
 
 const schema = z.object({
@@ -22,10 +23,19 @@ const schema = z.object({
     .default("latest"),
 });
 
+async function buildDashboardUrl(orderId: string, params: Record<string, string>) {
+  const server = await prisma.server.findUnique({ where: { orderId }, select: { id: true } });
+  const search = new URLSearchParams(params);
+  if (server) search.set("server", server.id);
+  const base = `${env.APP_URL}/dashboard?${search.toString()}`;
+  return server ? `${base}#server-${server.id}` : base;
+}
+
 export async function POST(req: Request) {
   try {
     const user = await requireUser();
     const body = schema.parse(await req.json());
+    const language = getLanguageFromRequest(req);
 
     const plan = await prisma.plan.findUnique({ where: { slug: body.planSlug } });
     if (!plan || !plan.active) return jsonError("Plan not available", 400);
@@ -49,6 +59,7 @@ export async function POST(req: Request) {
             planSlug: plan.slug,
             serverName: body.serverName,
             interval: body.interval,
+            language,
             vanillaVersion: body.vanillaVersion,
           },
         },
@@ -81,12 +92,12 @@ export async function POST(req: Request) {
         }
 
         try {
-          await sendOrderReceiptEmail(order.id);
+          await sendOrderPurchaseNotifications(order.id);
         } catch (err) {
-          console.error("Receipt email failed (stripe free)", err);
+          console.error("Purchase notifications failed (stripe free)", err);
         }
 
-        return jsonOk({ url: `${env.APP_URL}/dashboard?paid=1&free=1` });
+        return jsonOk({ url: await buildDashboardUrl(order.id, { paid: "1", free: "1" }) });
       } catch (err: any) {
         await prisma.order.update({
           where: { id: order.id },
@@ -133,6 +144,7 @@ export async function POST(req: Request) {
         planSlug: plan.slug,
         serverName: body.serverName,
         interval: body.interval,
+        language,
         vanillaVersion: body.vanillaVersion,
       },
     });

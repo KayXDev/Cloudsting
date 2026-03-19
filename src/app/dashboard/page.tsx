@@ -10,6 +10,7 @@ import { requireUser } from "@/server/auth/session";
 import { prisma } from "@/server/db";
 import { env } from "@/server/env";
 import { getLanguageFromCookies } from "@/server/i18n";
+import { reconcileDeletedPterodactylServers } from "@/server/pterodactyl/reconcile";
 
 export function generateMetadata(): Metadata {
   return createMetadata({
@@ -20,8 +21,9 @@ export function generateMetadata(): Metadata {
   });
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({ searchParams }: { searchParams?: { server?: string } }) {
   const lang = getLanguageFromCookies();
+  const selectedServerId = searchParams?.server ?? null;
   const serverIcons = ["🦇", "🕷️", "🟩", "💀"] as const;
   let user: { id: string; email: string; role: "USER" | "ADMIN" };
 
@@ -30,6 +32,8 @@ export default async function DashboardPage() {
   } catch {
     redirect("/login");
   }
+
+  await reconcileDeletedPterodactylServers({ userId: user.id });
 
   const servers = await prisma.server.findMany({
     where: { userId: user.id, status: { notIn: ["DELETED", "ERROR"] } },
@@ -110,7 +114,12 @@ export default async function DashboardPage() {
             return (
               <div
                 key={server.id}
-                className="mx-auto w-full max-w-[880px] overflow-hidden rounded-2xl border border-[#2a2a2a] bg-[linear-gradient(180deg,rgba(16,16,16,0.98),rgba(10,10,10,0.98))] p-5 backdrop-blur-md transition hover:border-[#2f2f2f]"
+                id={`server-${server.id}`}
+                className={`mx-auto w-full max-w-[880px] overflow-hidden rounded-2xl border bg-[linear-gradient(180deg,rgba(16,16,16,0.98),rgba(10,10,10,0.98))] p-5 backdrop-blur-md transition hover:border-[#2f2f2f] ${
+                  selectedServerId === server.id
+                    ? "border-[#59ffa8] shadow-[0_0_0_1px_rgba(89,255,168,0.22),0_0_36px_rgba(89,255,168,0.14)]"
+                    : "border-[#2a2a2a]"
+                }`}
               >
                 <div className="pointer-events-none absolute inset-y-0 left-0 w-[2px] bg-[#1AD76F]/90" />
 
@@ -127,6 +136,11 @@ export default async function DashboardPage() {
                     </div>
 
                     <div className="mt-3 flex flex-wrap items-center gap-2">
+                      {selectedServerId === server.id ? (
+                        <span className="inline-flex items-center rounded-full border border-[#24553d] bg-[#102317] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.08em] text-[#8af4c4]">
+                          {lang === "es" ? "Servidor recién comprado" : "Newly purchased"}
+                        </span>
+                      ) : null}
                       <span className="inline-flex items-center rounded-full border border-[#2d2d2d] bg-[#171717] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.08em] text-white">
                         {translatedStatus}
                       </span>

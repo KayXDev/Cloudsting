@@ -124,6 +124,7 @@ See `.env.example` for the canonical list.
 
 - `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`
 - `SUPPORT_INBOX` — where support messages are delivered
+- `DISCORD_PURCHASE_WEBHOOK_URL` — Discord webhook used to post a detailed embed whenever an order is paid
 
 ### Pterodactyl (optional)
 
@@ -252,6 +253,13 @@ All API endpoints are implemented via Next.js App Router route handlers.
 - Language is stored in the `kx_lang` cookie.
 - Server components read the cookie and render translated content.
 - Client components use `LanguageProvider` and `t(lang, key)`.
+
+## 🍪 Cookie Consent
+
+- A cookie consent banner is displayed to visitors until they accept, reject, or customize categories.
+- Essential cookies remain active because authentication, checkout continuity, and account security depend on them.
+- Consent state is stored in the `kx_cookie_consent` cookie.
+- A human-readable policy page is available at `/cookies`.
 
 ## 🔎 SEO / AI discovery
 

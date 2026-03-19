@@ -148,6 +148,7 @@ export function Footer() {
               <Link className="text-[color:var(--muted)] hover:text-[color:var(--text)]" href="/guides/choose-minecraft-hosting">Choose Minecraft Hosting</Link>
               <Link className="text-[color:var(--muted)] hover:text-[color:var(--text)]" href="/support">{t(lang, "footer.support")}</Link>
               <Link className="text-[color:var(--muted)] hover:text-[color:var(--text)]" href="/faq">FAQ</Link>
+              <Link className="text-[color:var(--muted)] hover:text-[color:var(--text)]" href="/cookies">Cookies</Link>
             </div>
           </div>
         </div>

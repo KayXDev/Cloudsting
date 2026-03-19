@@ -4,6 +4,7 @@ import { jsonError, jsonOk } from "@/server/http";
 import { rateLimitOrThrow } from "@/server/rateLimit";
 import { verifyPassword } from "@/server/auth/password";
 import { createSessionForUser } from "@/server/auth/session";
+import { getLanguageFromRequest } from "@/server/i18n";
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -16,12 +17,20 @@ export async function POST(req: Request) {
 
     const body = loginSchema.parse(await req.json());
     const email = body.email.toLowerCase();
+    const preferredLanguage = getLanguageFromRequest(req);
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) return jsonError("Invalid credentials", 401);
 
     const ok = await verifyPassword(body.password, user.passwordHash);
     if (!ok) return jsonError("Invalid credentials", 401);
+
+    if (user.preferredLanguage !== preferredLanguage) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { preferredLanguage },
+      });
+    }
 
     await createSessionForUser({ id: user.id, email: user.email, role: user.role });
 

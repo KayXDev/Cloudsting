@@ -5,6 +5,7 @@ import { rateLimitOrThrow } from "@/server/rateLimit";
 import { hashPassword } from "@/server/auth/password";
 import { createSessionForUser } from "@/server/auth/session";
 import { provisionPanelAccessForUser } from "@/server/auth/onboarding";
+import { getLanguageFromRequest } from "@/server/i18n";
 
 const registerSchema = z.object({
   email: z.string().email(),
@@ -18,6 +19,7 @@ export async function POST(req: Request) {
 
     const body = registerSchema.parse(await req.json());
     const email = body.email.toLowerCase();
+    const preferredLanguage = getLanguageFromRequest(req);
 
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) return jsonError("Email already registered", 409);
@@ -29,8 +31,9 @@ export async function POST(req: Request) {
         email,
         passwordHash,
         name: body.name,
+        preferredLanguage,
       },
-      select: { id: true, email: true, role: true, name: true },
+      select: { id: true, email: true, role: true, name: true, preferredLanguage: true },
     });
 
     await provisionPanelAccessForUser(user);

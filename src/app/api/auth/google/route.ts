@@ -7,6 +7,7 @@ import { hashPassword } from "@/server/auth/password";
 import { createSessionForUser } from "@/server/auth/session";
 import { verifyGoogleIdToken } from "@/server/auth/google";
 import { provisionPanelAccessForUser } from "@/server/auth/onboarding";
+import { getLanguageFromRequest } from "@/server/i18n";
 
 const googleAuthSchema = z.object({
   credential: z.string().min(1),
@@ -18,10 +19,11 @@ export async function POST(req: Request) {
 
     const body = googleAuthSchema.parse(await req.json());
     const googleUser = await verifyGoogleIdToken(body.credential);
+    const preferredLanguage = getLanguageFromRequest(req);
 
     const linkedUser = await prisma.user.findFirst({
       where: { googleSub: googleUser.sub },
-      select: { id: true, email: true, role: true, name: true, googleSub: true },
+      select: { id: true, email: true, role: true, name: true, googleSub: true, preferredLanguage: true },
     });
 
     let user = linkedUser;
@@ -29,7 +31,7 @@ export async function POST(req: Request) {
     if (!user) {
       const existingByEmail = await prisma.user.findUnique({
         where: { email: googleUser.email },
-        select: { id: true, email: true, role: true, name: true, googleSub: true },
+        select: { id: true, email: true, role: true, name: true, googleSub: true, preferredLanguage: true },
       });
 
       if (existingByEmail) {
@@ -42,8 +44,9 @@ export async function POST(req: Request) {
           data: {
             googleSub: googleUser.sub,
             name: existingByEmail.name ?? googleUser.name,
+            preferredLanguage,
           },
-          select: { id: true, email: true, role: true, name: true, googleSub: true },
+          select: { id: true, email: true, role: true, name: true, googleSub: true, preferredLanguage: true },
         });
       } else {
         const passwordHash = await hashPassword(`${crypto.randomUUID()}-${crypto.randomBytes(24).toString("hex")}`);
@@ -53,8 +56,9 @@ export async function POST(req: Request) {
             googleSub: googleUser.sub,
             passwordHash,
             name: googleUser.name,
+            preferredLanguage,
           },
-          select: { id: true, email: true, role: true, name: true, googleSub: true },
+          select: { id: true, email: true, role: true, name: true, googleSub: true, preferredLanguage: true },
         });
 
         await provisionPanelAccessForUser(user);
@@ -73,8 +77,15 @@ export async function POST(req: Request) {
         data: {
           email: googleUser.email,
           name: googleUser.name ?? user.name,
+          preferredLanguage,
         },
-        select: { id: true, email: true, role: true, name: true, googleSub: true },
+        select: { id: true, email: true, role: true, name: true, googleSub: true, preferredLanguage: true },
+      });
+    } else if (user.preferredLanguage !== preferredLanguage) {
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: { preferredLanguage },
+        select: { id: true, email: true, role: true, name: true, googleSub: true, preferredLanguage: true },
       });
     }
 

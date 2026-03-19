@@ -1,5 +1,7 @@
 import { cookies } from "next/headers";
 import { jsonError, jsonOk } from "@/server/http";
+import { prisma } from "@/server/db";
+import { requireUser } from "@/server/auth/session";
 import { isLangCode } from "@/lib/i18n";
 import { langCookieName } from "@/server/i18n";
 
@@ -16,6 +18,16 @@ export async function POST(req: Request) {
       path: "/",
       maxAge: 60 * 60 * 24 * 365,
     });
+
+    try {
+      const user = await requireUser();
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { preferredLanguage: lang },
+      });
+    } catch {
+      // Ignore anonymous users and stale sessions.
+    }
 
     return jsonOk({ lang });
   } catch (err: any) {

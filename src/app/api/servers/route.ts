@@ -1,10 +1,13 @@
 import { prisma } from "@/server/db";
 import { jsonError, jsonOk } from "@/server/http";
 import { requireUser } from "@/server/auth/session";
+import { reconcileDeletedPterodactylServers } from "@/server/pterodactyl/reconcile";
 
 export async function GET() {
   try {
     const user = await requireUser();
+
+    await reconcileDeletedPterodactylServers({ userId: user.id });
 
     const servers = await prisma.server.findMany({
       where: { userId: user.id, status: { not: "DELETED" } },

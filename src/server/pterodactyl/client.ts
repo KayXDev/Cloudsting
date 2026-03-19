@@ -200,6 +200,22 @@ export class PterodactylClient {
     return res.attributes;
   }
 
+  async getServer(serverId: number): Promise<PteroApplicationServer | null> {
+    try {
+      const res = await this.requestApplication<{ object: string; attributes: PteroApplicationServer }>(
+        `/api/application/servers/${serverId}`
+      );
+
+      return res.attributes;
+    } catch (err) {
+      if (err instanceof PterodactylApiError && err.status === 404) {
+        return null;
+      }
+
+      throw err;
+    }
+  }
+
   async power(identifier: string, signal: "start" | "stop" | "restart" | "kill") {
     await this.requestClient(`/api/client/servers/${identifier}/power`, {
       method: "POST",

@@ -52,6 +52,7 @@ export async function createWalletDebitForOrder(input: {
   amountCents: number;
   serverName: string;
   interval: string;
+  language: string;
   vanillaVersion?: string;
 }) {
   return prisma.$transaction(async (tx) => {
@@ -94,6 +95,7 @@ export async function createWalletDebitForOrder(input: {
           planSlug: input.planSlug,
           serverName: input.serverName,
           interval: input.interval,
+          language: input.language,
           vanillaVersion: input.vanillaVersion,
         },
       },
@@ -113,6 +115,7 @@ export async function createWalletDebitForOrder(input: {
           planSlug: input.planSlug,
           serverName: input.serverName,
           interval: input.interval,
+          language: input.language,
           vanillaVersion: input.vanillaVersion,
           walletTransactionId: walletTransaction.id,
         },

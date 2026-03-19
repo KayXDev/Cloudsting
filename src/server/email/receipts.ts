@@ -2,12 +2,14 @@ import { prisma } from "@/server/db";
 import { env } from "@/server/env";
 import { sendEmail } from "@/server/email/smtp";
 import { renderOrderReceiptEmail } from "@/server/email/templates";
+import { DEFAULT_LANG, isLangCode } from "@/lib/i18n";
+import { resolveLanguagePreference } from "@/server/i18n";
 
 export async function sendOrderReceiptEmail(orderId: string) {
   const order = await prisma.order.findUnique({
     where: { id: orderId },
     include: {
-      user: { select: { email: true } },
+      user: { select: { email: true, preferredLanguage: true } },
       plan: { select: { name: true, slug: true } },
     },
   });
@@ -20,7 +22,10 @@ export async function sendOrderReceiptEmail(orderId: string) {
     where: {
       id: order.id,
       status: "PAID",
-      receiptEmailSentAt: null,
+      OR: [
+        { receiptEmailSentAt: null },
+        { receiptEmailSentAt: { isSet: false } },
+      ],
     },
     data: {
       receiptEmailSentAt: new Date(),
@@ -32,6 +37,11 @@ export async function sendOrderReceiptEmail(orderId: string) {
   }
 
   const meta = (order.metadata ?? {}) as Record<string, unknown>;
+  const lang = resolveLanguagePreference(
+    typeof meta.language === "string" && isLangCode(meta.language) ? meta.language : null,
+    order.user.preferredLanguage,
+    DEFAULT_LANG,
+  );
   const serverName = typeof meta.serverName === "string" && meta.serverName.trim().length > 0
     ? meta.serverName
     : "Minecraft Server";
@@ -47,6 +57,7 @@ export async function sendOrderReceiptEmail(orderId: string) {
       provider: order.provider,
       amountCents: order.amountCents,
       paidAt: order.paidAt,
+      lang,
     });
 
     await sendEmail({

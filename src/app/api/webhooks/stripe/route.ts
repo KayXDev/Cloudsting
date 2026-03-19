@@ -4,8 +4,8 @@ import { env } from "@/server/env";
 import { jsonError, jsonOk } from "@/server/http";
 import { ensurePaymenterServiceForOrder } from "@/server/billing/paymenter";
 import { provisionMinecraftServer } from "@/server/provisioning";
-import { sendOrderReceiptEmail } from "@/server/email/receipts";
 import { completeWalletTopUpByProviderRef } from "@/server/wallet";
+import { sendOrderPurchaseNotifications } from "@/server/notifications/purchases";
 
 export async function POST(req: Request) {
   try {
@@ -50,6 +50,12 @@ export async function POST(req: Request) {
           data: { status: "PAID", paidAt: new Date() },
         });
 
+        try {
+          await sendOrderPurchaseNotifications(order.id);
+        } catch (err) {
+          console.error("Purchase notifications failed (stripe webhook)", err);
+        }
+
         await provisionMinecraftServer({
           userId: order.userId,
           planSlug,
@@ -59,11 +65,12 @@ export async function POST(req: Request) {
         });
 
       }
-
-      try {
-        await sendOrderReceiptEmail(order.id);
-      } catch (err) {
-        console.error("Receipt email failed (stripe webhook)", err);
+      if (order.status === "PAID") {
+        try {
+          await sendOrderPurchaseNotifications(order.id);
+        } catch (err) {
+          console.error("Purchase notifications failed (stripe webhook)", err);
+        }
       }
 
       // Best-effort Paymenter sync (retryable if the webhook is retried).

@@ -1,7 +1,10 @@
 # Changelog
 
-## 2026-03-18
+## 2026-03-19
 
-- Fixed Pterodactyl provisioning for existing accounts by linking panel users by email before trying to create a new panel account.
-- Added a relink utility script to backfill `pterodactylUserId` for older local users that already exist in Pterodactyl.
-- Validated the current production build successfully before pushing.
+- Localized panel access emails and purchase receipts using the user's stored language preference, plus persisted language capture across login, registration, Google auth, and checkout.
+- Added premium Discord purchase webhook notifications with idempotent delivery, provider-specific embeds, admin test sending, live/test variants, and richer plan, node, and provisioning details.
+- Added cookie consent management with a banner, a dedicated cookie policy page, and footer navigation.
+- Improved paid checkout redirects so users land directly on the newly purchased server in the dashboard.
+- Added Pterodactyl deletion reconciliation so removed panel servers are reflected locally.
+- Added a resend utility for paid orders missing receipt delivery and validated the production build successfully before pushing.

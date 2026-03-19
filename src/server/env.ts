@@ -45,6 +45,7 @@ const envSchema = z.object({
   SMTP_FROM: optionalString,
 
   SUPPORT_INBOX: optionalString,
+  DISCORD_PURCHASE_WEBHOOK_URL: optionalUrl,
 
   PTERO_URL: optionalUrl,
   PTERO_APPLICATION_API_KEY: optionalString,
@@ -93,6 +94,7 @@ function readProcessEnv() {
     SMTP_PASS: process.env.SMTP_PASS,
     SMTP_FROM: process.env.SMTP_FROM,
     SUPPORT_INBOX: process.env.SUPPORT_INBOX,
+    DISCORD_PURCHASE_WEBHOOK_URL: process.env.DISCORD_PURCHASE_WEBHOOK_URL,
     PTERO_URL: process.env.PTERO_URL,
     PTERO_APPLICATION_API_KEY: process.env.PTERO_APPLICATION_API_KEY,
     PTERO_CLIENT_API_KEY: process.env.PTERO_CLIENT_API_KEY,

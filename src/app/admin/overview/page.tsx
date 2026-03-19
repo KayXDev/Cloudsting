@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { Card } from "@/components/Card";
+import { AdminSendTestDiscordWebhookButton } from "@/components/AdminSendTestDiscordWebhookButton";
+import { AdminSendTestReceiptButton } from "@/components/AdminSendTestReceiptButton";
 import { t } from "@/lib/i18n";
 import { prisma } from "@/server/db";
 import { getLanguageFromCookies } from "@/server/i18n";
@@ -57,6 +59,12 @@ export default async function AdminOverviewPage() {
           <Link href="/admin/servers" className="rounded-lg border border-[color:var(--border)] bg-[color:var(--surface1)] px-3 py-2 font-semibold hover:bg-[color:var(--surface2)]">{t(lang, "admin.overview.links.servers")}</Link>
           <Link href="/admin/plans" className="rounded-lg border border-[color:var(--border)] bg-[color:var(--surface1)] px-3 py-2 font-semibold hover:bg-[color:var(--surface2)]">{t(lang, "admin.overview.links.plans")}</Link>
           <Link href="/admin/billing" className="rounded-lg border border-[color:var(--border)] bg-[color:var(--surface1)] px-3 py-2 font-semibold hover:bg-[color:var(--surface2)]">{t(lang, "admin.overview.links.billing")}</Link>
+        </div>
+        <div className="mt-4">
+          <div className="flex flex-wrap gap-3">
+            <AdminSendTestReceiptButton />
+            <AdminSendTestDiscordWebhookButton />
+          </div>
         </div>
         <div className="mt-3 text-xs text-[color:var(--muted)]">
           {t(lang, "admin.overview.totalServers").replace("{count}", String(serversCount))}

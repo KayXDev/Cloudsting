@@ -4,8 +4,8 @@ import { jsonError } from "@/server/http";
 import { ensurePaymenterServiceForOrder } from "@/server/billing/paymenter";
 import { getPayPalAccessToken } from "@/server/payments/paypal";
 import { provisionMinecraftServer } from "@/server/provisioning";
-import { sendOrderReceiptEmail } from "@/server/email/receipts";
 import { completeWalletTopUpByProviderRef } from "@/server/wallet";
+import { sendOrderPurchaseNotifications } from "@/server/notifications/purchases";
 
 function redirectResponse(url: string) {
   return new Response(null, {
@@ -15,6 +15,14 @@ function redirectResponse(url: string) {
       "Cache-Control": "no-store",
     },
   });
+}
+
+async function dashboardUrlForOrder(orderId: string, params: Record<string, string>) {
+  const server = await prisma.server.findUnique({ where: { orderId }, select: { id: true } });
+  const search = new URLSearchParams(params);
+  if (server) search.set("server", server.id);
+  const base = `${env.APP_URL}/dashboard?${search.toString()}`;
+  return server ? `${base}#server-${server.id}` : base;
 }
 
 function getPayPalBaseUrl() {
@@ -93,6 +101,12 @@ export async function GET(req: Request) {
         data: { status: "PAID", paidAt: new Date() },
       });
 
+      try {
+        await sendOrderPurchaseNotifications(order.id);
+      } catch (err) {
+        console.error("Purchase notifications failed (paypal success)", err);
+      }
+
       await provisionMinecraftServer({
         userId: order.userId,
         planSlug,
@@ -102,10 +116,12 @@ export async function GET(req: Request) {
       });
     }
 
-    try {
-      await sendOrderReceiptEmail(order.id);
-    } catch (err) {
-      console.error("Receipt email failed (paypal success)", err);
+    if (order.status === "PAID") {
+      try {
+        await sendOrderPurchaseNotifications(order.id);
+      } catch (err) {
+        console.error("Purchase notifications failed (paypal success)", err);
+      }
     }
 
     // Best-effort Paymenter sync (retryable if the user revisits the success URL).
@@ -123,7 +139,7 @@ export async function GET(req: Request) {
       console.error("Paymenter sync failed (paypal success)", err);
     }
 
-    return redirectResponse(`${env.APP_URL}/dashboard?paid=1`);
+    return redirectResponse(await dashboardUrlForOrder(order.id, { paid: "1" }));
   } catch {
     return redirectResponse(`${env.APP_URL}/dashboard?paid=0&err=provision_failed`);
   }

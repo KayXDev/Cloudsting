@@ -4,6 +4,7 @@ import { PterodactylClient } from "@/server/pterodactyl/client";
 import { sendEmail } from "@/server/email/smtp";
 import { renderPanelAccessEmail } from "@/server/email/templates";
 import crypto from "crypto";
+import { resolveLanguagePreference } from "@/server/i18n";
 
 function dockerImageForVanillaVersion(opts: {
   vanillaVersion?: string;
@@ -120,6 +121,7 @@ export async function provisionMinecraftServer(opts: {
             panelUrl: panel,
             email,
             temporaryPassword: tempPassword,
+            lang: resolveLanguagePreference(user.preferredLanguage),
           });
           await sendEmail({ to: email, subject: mail.subject, text: mail.text, html: mail.html });
         } catch {

@@ -4,8 +4,9 @@ import { prisma } from "@/server/db";
 import { PterodactylClient } from "@/server/pterodactyl/client";
 import { sendEmail } from "@/server/email/smtp";
 import { renderPanelAccessEmail } from "@/server/email/templates";
+import { resolveLanguagePreference } from "@/server/i18n";
 
-export async function provisionPanelAccessForUser(user: { id: string; email: string; name?: string | null }) {
+export async function provisionPanelAccessForUser(user: { id: string; email: string; name?: string | null; preferredLanguage?: string | null }) {
   if (!(env.PTERO_AUTO_CREATE_USER && env.PTERO_URL && env.PTERO_APPLICATION_API_KEY)) {
     return;
   }
@@ -49,6 +50,7 @@ export async function provisionPanelAccessForUser(user: { id: string; email: str
         panelUrl: panel,
         email: user.email,
         temporaryPassword: tempPassword,
+        lang: resolveLanguagePreference(user.preferredLanguage),
       });
       await sendEmail({ to: user.email, subject: mail.subject, text: mail.text, html: mail.html });
     } catch {
