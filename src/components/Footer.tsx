@@ -175,6 +175,10 @@ export function Footer() {
             {siteConfig.supportEmail}
           </a>
         </div>
+
+        <div className="mt-2 text-center text-xs text-[color:var(--muted)]">
+          Hecho por Aaron Hernandez con ❤️
+        </div>
       </Container>
     </footer>
   );
