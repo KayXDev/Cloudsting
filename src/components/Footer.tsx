@@ -177,7 +177,7 @@ export function Footer() {
         </div>
 
         <div className="mt-2 text-center text-xs text-[color:var(--muted)]">
-          Hecho por Aaron Hernandez Kudriova con ❤️
+          Hecho por Aaron Hernandez con ❤️
         </div>
       </Container>
     </footer>
